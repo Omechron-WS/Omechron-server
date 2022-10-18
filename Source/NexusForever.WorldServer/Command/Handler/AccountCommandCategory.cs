@@ -7,12 +7,14 @@ using NexusForever.Shared.Configuration;
 using NexusForever.WorldServer.Command.Context;
 using NexusForever.WorldServer.Command.Convert;
 using NexusForever.WorldServer.Command.Static;
+using NLog;
 
 namespace NexusForever.WorldServer.Command.Handler
 {
     [Command(Permission.Account, "A collection of commands to modify game accounts.", "acc", "account")]
     public class AccountCommandCategory : CommandCategory
     {
+        private static readonly ILogger log = LogManager.GetCurrentClassLogger();
         [Command(Permission.AccountCreate, "Create a new account.", "create")]
         public void HandleAccountCreate(ICommandContext context,
             [Parameter("Email address for the new account", converter: typeof(StringLowerParameterConverter))]
@@ -32,6 +34,15 @@ namespace NexusForever.WorldServer.Command.Handler
 
             (string salt, string verifier) = PasswordProvider.GenerateSaltAndVerifier(email, password);
             DatabaseManager.Instance.GetDatabase<AuthDatabase>().CreateAccount(email, salt, verifier, (uint)role);
+
+            if (context.InvokingPlayer != null)
+            {
+                log.Info($"Account {email} created successfully by {context.InvokingPlayer.Name} ({context.InvokingPlayer.Session.Account.Email}).");
+            }
+            else
+            {
+                log.Info($"Account {email} created successfully.");
+            }
 
             context.SendMessage($"Account {email} created successfully");
         }
