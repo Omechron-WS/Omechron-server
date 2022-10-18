@@ -26,6 +26,12 @@ namespace NexusForever.Network.Session
         private readonly ConcurrentQueue<ClientGamePacket> incomingPackets = new();
         private readonly ConcurrentQueue<ServerGamePacket> outgoingPackets = new();
 
+        public TimeSpan GetUptime()
+        {
+            return DateTime.UtcNow.Subtract(sessionCreated);
+        }
+        private DateTime sessionCreated;
+
         #region Dependency Injection
 
         private readonly IMessageManager messageManager;
@@ -114,6 +120,8 @@ namespace NexusForever.Network.Session
 
             ulong key = PacketCrypt.GetKeyFromAuthBuildAndMessage();
             encryption = new PacketCrypt(key);
+
+            sessionCreated = DateTime.UtcNow;
         }
 
         protected override uint OnData(byte[] data)

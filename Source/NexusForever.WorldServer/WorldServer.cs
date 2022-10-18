@@ -33,6 +33,15 @@ namespace NexusForever.WorldServer
 
         private static readonly NLog.ILogger log = LogManager.GetCurrentClassLogger();
 
+
+        public static TimeSpan Uptime
+        {
+            get
+            {
+                return DateTime.UtcNow.Subtract(bootTime);
+            }
+        }
+        private static DateTime bootTime;
         private static readonly CancellationTokenSource cancellationToken = new();
 
         private static async Task Main()
@@ -78,6 +87,8 @@ namespace NexusForever.WorldServer
 
             if (!WindowsServiceHelpers.IsWindowsService() && !SystemdHelpers.IsSystemdService())
                 Console.Title = Title;
+
+            bootTime = DateTime.UtcNow;
 
             try
             {

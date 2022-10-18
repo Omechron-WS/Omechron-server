@@ -20,6 +20,11 @@ namespace NexusForever.Game.Abstract.Entity
         /// </summary>
         void AddDatacubeVolume(ushort id, uint progress);
 
+        /// <summary>
+        /// Unlock all lore entries.
+        /// </summary>
+        public void UnlockAllLore();
+
         void SendInitialPackets();
         void SendDatacube(IDatacube datacube);
         void SendDatacubeVolume(IDatacube volume);

@@ -1,6 +1,8 @@
 ﻿using NexusForever.Game.Abstract.Entity;
+using NexusForever.Game.Abstract.Housing;
 using NexusForever.Game.Abstract.Map.Instance;
 using NexusForever.Game.Entity;
+using NexusForever.Game.Housing;
 using NexusForever.Game.Map.Instance;
 using NexusForever.Game.Static.Map;
 using NexusForever.Game.Static.RBAC;
@@ -38,7 +40,7 @@ namespace NexusForever.WorldServer.Command.Handler
                 name = name + " " + name2;
             }
 
-            Residence res = GlobalResidenceManager.Instance.GetResidenceByOwner(name);
+            IResidence res = GlobalResidenceManager.Instance.GetResidenceByOwner(name);
 
             if (res != null)
             {

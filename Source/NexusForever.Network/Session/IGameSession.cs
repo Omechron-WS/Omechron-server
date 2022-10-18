@@ -33,5 +33,7 @@ namespace NexusForever.Network.Session
         /// Flush all queued packets to the client.
         /// </summary>
         public void FlushPackets();
+
+        public TimeSpan GetUptime();
     }
 }

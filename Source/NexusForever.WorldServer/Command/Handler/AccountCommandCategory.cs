@@ -1,6 +1,7 @@
 ﻿using NexusForever.Cryptography;
 using NexusForever.Database;
 using NexusForever.Database.Auth;
+using NexusForever.Game.Abstract.Entity;
 using NexusForever.Game.Configuration.Model;
 using NexusForever.Game.Static.RBAC;
 using NexusForever.Shared.Configuration;
@@ -35,9 +36,11 @@ namespace NexusForever.WorldServer.Command.Handler
             (string salt, string verifier) = PasswordProvider.GenerateSaltAndVerifier(email, password);
             DatabaseManager.Instance.GetDatabase<AuthDatabase>().CreateAccount(email, salt, verifier, (uint)role);
 
-            if (context.InvokingPlayer != null)
+            IPlayer invokingPlayer = context.GetTargetOrInvoker<IPlayer>();
+
+            if (invokingPlayer != null)
             {
-                log.Info($"Account {email} created successfully by {context.InvokingPlayer.Name} ({context.InvokingPlayer.Session.Account.Email}).");
+                log.Info($"Account {email} created successfully by {invokingPlayer.Name} ({invokingPlayer.Account.Email}).");
             }
             else
             {

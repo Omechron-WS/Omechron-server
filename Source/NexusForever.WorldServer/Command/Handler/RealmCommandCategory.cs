@@ -8,6 +8,10 @@ using NexusForever.Network.Session;
 using NexusForever.Shared;
 using NexusForever.WorldServer.Command.Context;
 using NexusForever.WorldServer.Network;
+using System.Collections.Generic;
+using System.Linq;
+using NexusForever.Game.Entity;
+using NexusForever.Game.Abstract.Entity;
 
 namespace NexusForever.WorldServer.Command.Handler
 {
@@ -65,6 +69,31 @@ namespace NexusForever.WorldServer.Command.Handler
             // TODO: move commands to dependency injection...
             var queueManager = LegacyServiceProvider.Provider.GetService<ILoginQueueManager>();
             queueManager.SetMaxPlayers(maxPlayers);
+        }
+
+        [Command(Permission.RealmOnline, "Displays the users online", "online")]
+        public void HandleRealmOnline(ICommandContext context)
+        {
+            List<IPlayer> allPlayers = PlayerManager.Instance.ToList();
+
+            int index = 0;
+            foreach (IPlayer player in allPlayers)
+            {
+                string infoString = "";
+                TimeSpan uptime = player.Session.GetUptime();
+                infoString += $"[{index++}] {player.Account?.Email} id:{player.Account?.Id} | {player.Name} | {uptime:%d}d {uptime:%h}h {uptime:%m}m";
+
+                context.SendMessage(infoString);
+            }
+
+            if (allPlayers.Count == 0)
+                context.SendMessage($"No sessions connected.");
+        }
+
+        [Command(Permission.RealmUptime, "Display the current uptime of the server.", "uptime")]
+        public void HandleUptimeCheck(ICommandContext context)
+        {
+            context.SendMessage($"Currently up for {WorldServer.Uptime:%d}d {WorldServer.Uptime:%h}h {WorldServer.Uptime:%m}m {WorldServer.Uptime:%s}s");
         }
     }
 }

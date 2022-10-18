@@ -75,6 +75,26 @@ namespace NexusForever.Game.Entity
             SendDatacubeVolume(datacube);
         }
 
+        /// <summary>
+        /// Unlock all lore entries.
+        /// </summary>
+        public void UnlockAllLore()
+        {
+            datacubes.Clear();
+            foreach (var entry in GameTableManager.Instance.DatacubeVolume.Entries)
+            {
+                var datacube = new Datacube(player, (ushort)entry.Id, DatacubeType.Journal, uint.MaxValue);
+                datacubes.Add(DatacubeHash((ushort)entry.Id, DatacubeType.Journal), datacube);
+            }
+            foreach (var entry in GameTableManager.Instance.Datacube.Entries)
+            {
+                var datacube = new Datacube(player, (ushort)entry.Id, DatacubeType.Datacube, uint.MaxValue);
+                datacubes.Add(DatacubeHash((ushort)entry.Id, DatacubeType.Datacube), datacube);
+            }
+
+            SendInitialPackets();
+        }
+
         public void SendInitialPackets()
         {
             var datacubeUpdateList = new ServerDatacubeUpdateList();
