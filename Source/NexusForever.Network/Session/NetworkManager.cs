@@ -104,6 +104,7 @@ namespace NexusForever.Network.Session
 
         private void AddSession(T session)
         {
+            /*
             if (sessions.TryGetValue(session.Id, out T existingSession))
             {
                 // there is already an existing session with this key, disconnect it
@@ -112,16 +113,19 @@ namespace NexusForever.Network.Session
                 existingSession.ForceDisconnect();
                 UpdateSession(existingSession, Guid.NewGuid().ToString());
             }
-
+            */
+            //log.Info($"Adding new session with ID: {session.Id}");
             sessions.Add(session.Id, session);
             log.LogTrace($"Added session {session.Id}.");
         }
 
         private void UpdateSession(T session, string id)
         {
+            /*
             sessions.Remove(session.Id);
             session.UpdateId(id);
             AddSession(session);
+            */
         }
 
         /// <summary>
