@@ -294,8 +294,9 @@ namespace NexusForever.WorldServer.Game.Map
             var housingResidenceDecor = new ServerHousingResidenceDecor();
             foreach (Decor decor in residence.GetPlacedDecor())
             {
-                foreach (WorldEntity entity in entities.Values.Where(i => i is Player))
-                    entity.RemoveVisible(decor.Entity);
+                if (decor.Entity != null)
+                    foreach (WorldEntity entity in entities.Values.Where(i => i is Player))
+                        entity.RemoveVisible(decor.Entity);
 
                 decor.Crate();
                 housingResidenceDecor.DecorData.Add(decor.Build());
@@ -512,8 +513,9 @@ namespace NexusForever.WorldServer.Game.Map
                 {
                     if (update.DecorType == DecorType.Crate)
                     {
-                        foreach (WorldEntity entity in entities.Values.Where(i => i is Player))
-                            entity.RemoveVisible(decor.Entity);
+                        if (decor.Entity != null)
+                            foreach (WorldEntity entity in entities.Values.Where(i => i is Player))
+                                entity.RemoveVisible(decor.Entity);
 
                         decor.Crate();
                         decorEntities.Remove(decor.DecorId);
@@ -740,8 +742,9 @@ namespace NexusForever.WorldServer.Game.Map
 
             foreach (Decor decor in residence.GetPlacedDecor(plot.Index).ToList())
             {
-                foreach (WorldEntity entity in entities.Values.Where(i => i is Player))
-                    entity.RemoveVisible(decor.Entity);
+                if(decor.Entity != null)
+                    foreach (WorldEntity entity in entities.Values.Where(i => i is Player))
+                        entity.RemoveVisible(decor.Entity);
 
                 decor.Crate();
                 decorEntities.Remove(decor.DecorId);
