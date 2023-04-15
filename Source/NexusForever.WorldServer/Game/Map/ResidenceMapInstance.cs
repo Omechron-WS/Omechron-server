@@ -305,6 +305,12 @@ namespace NexusForever.WorldServer.Game.Map
 
                 if (decor.Entity != null)
                     decor.RemoveEntity();
+
+                if (housingResidenceDecor.DecorData.Count > 100)
+                {
+                    EnqueueToAll(housingResidenceDecor);
+                    housingResidenceDecor.DecorData.Clear();
+                }
             }
 
             EnqueueToAll(housingResidenceDecor);
