@@ -37,6 +37,7 @@ using NLog;
 using Microsoft.Extensions.Hosting.WindowsServices;
 using Microsoft.Extensions.Hosting.Systemd;
 using System;
+using NexusForever.WorldServer.Game.InterClient;
 
 namespace NexusForever.WorldServer
 {
@@ -87,6 +88,7 @@ namespace NexusForever.WorldServer
             GlobalAchievementManager.Instance.Initialise(); // must be initialised before guilds
             GlobalGuildManager.Instance.Initialise(); // must be initialised before residences
             GlobalContactManager.Instance.Initialise();
+            GlobalInterClientManager.Instance.Initialise();
             GlobalResidenceManager.Instance.Initialise();
             GlobalGuildManager.Instance.ValidateCommunityResidences();
 

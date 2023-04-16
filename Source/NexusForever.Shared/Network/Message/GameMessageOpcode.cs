@@ -272,7 +272,7 @@ namespace NexusForever.Shared.Network.Message
         ClientIcCommSendMessage         = 0x054B,
         Server054C                      = 0x054C,
         Server054D                      = 0x054D,
-        Server054E                      = 0x054E, // send message
+        ServerIcCommSendMessage         = 0x054E, // send message
         ServerSpellList                 = 0x0551,
         ClientInspectPlayerRequest      = 0x0552,
         ServerInspectPlayerResponse     = 0x0553,
