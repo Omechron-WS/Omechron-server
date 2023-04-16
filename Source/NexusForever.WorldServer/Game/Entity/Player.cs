@@ -23,6 +23,7 @@ using NexusForever.WorldServer.Game.Entity.Static;
 using NexusForever.WorldServer.Game.Guild;
 using NexusForever.WorldServer.Game.Guild.Static;
 using NexusForever.WorldServer.Game.Housing;
+using NexusForever.WorldServer.Game.InterClient;
 using NexusForever.WorldServer.Game.Loot;
 using NexusForever.WorldServer.Game.Map;
 using NexusForever.WorldServer.Game.Prerequisite;
@@ -210,6 +211,7 @@ namespace NexusForever.WorldServer.Game.Entity
         public ReputationManager ReputationManager { get; }
         public GuildManager GuildManager { get; }
         public ChatManager ChatManager { get; }
+        public IcCommManager IcCommManager { get; }
         public ContactManager ContactManager { get; }
         public CinematicManager CinematicManager { get; }
         public ResidenceManager ResidenceManager { get; }
@@ -311,6 +313,7 @@ namespace NexusForever.WorldServer.Game.Entity
             ReputationManager       = new ReputationManager(this, model);
             GuildManager            = new GuildManager(this, model);
             ChatManager             = new ChatManager(this);
+            IcCommManager           = new IcCommManager(this);
             ContactManager          = new ContactManager(this, model);
             CinematicManager        = new CinematicManager(this);
             ResidenceManager        = new ResidenceManager(this);

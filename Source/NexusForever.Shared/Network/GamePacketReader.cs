@@ -156,9 +156,11 @@ namespace NexusForever.Shared.Network
 
         public string ReadString()
         {
-            ushort length = ReadUShort();
-            byte[] data = ReadBytes(length * 2u);
-            return Encoding.UTF8.GetString(data, 0, data.Length - 2);
+            bool extended = ReadBit();
+            ushort length = (ushort)(ReadUShort(extended ? 15u : 7u));
+
+            byte[] data = ReadBytes(length);
+            return Encoding.UTF8.GetString(data);
         }
 
         public string ReadWideStringFixed()

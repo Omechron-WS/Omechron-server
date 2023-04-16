@@ -266,11 +266,11 @@ namespace NexusForever.Shared.Network.Message
         ClientHousingEditMode           = 0x053C,
         ClientIcCommJoin                = 0x0546,
         ServerIcCommJoinResult          = 0x0547,
-        Server0548                      = 0x0548,
+        ServerIcCommJoinSuccess                      = 0x0548,
         Client0549                      = 0x0549, // error?
-        Server054A                      = 0x054A,
+        ServerIcCommRemoveClient                      = 0x054A,
         ClientIcCommSendMessage         = 0x054B,
-        Server054C                      = 0x054C,
+        ServerIcCommSendMessageResult                      = 0x054C,
         Server054D                      = 0x054D,
         ServerIcCommSendMessage         = 0x054E, // send message
         ServerSpellList                 = 0x0551,

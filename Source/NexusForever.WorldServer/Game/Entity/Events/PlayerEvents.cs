@@ -42,6 +42,7 @@ namespace NexusForever.WorldServer.Game.Entity
         {
             GuildManager.OnLogout();
             ChatManager.OnLogout();
+            IcCommManager.OnLogout();
             GlobalChatManager.Instance.LeaveDefaultChatChannels(this);
         }
 

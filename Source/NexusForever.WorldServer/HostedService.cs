@@ -88,7 +88,7 @@ namespace NexusForever.WorldServer
             GlobalAchievementManager.Instance.Initialise(); // must be initialised before guilds
             GlobalGuildManager.Instance.Initialise(); // must be initialised before residences
             GlobalContactManager.Instance.Initialise();
-            GlobalInterClientManager.Instance.Initialise();
+            GlobalIcCommManager.Instance.Initialise();
             GlobalResidenceManager.Instance.Initialise();
             GlobalGuildManager.Instance.ValidateCommunityResidences();
 
