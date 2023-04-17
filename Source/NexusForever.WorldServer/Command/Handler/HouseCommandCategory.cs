@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Numerics;
 using System.Text;
 using NexusForever.Shared;
 using NexusForever.Shared.GameTable;
@@ -330,5 +332,51 @@ namespace NexusForever.WorldServer.Command.Handler
                 RealmId = WorldServer.RealmId
             }, target, clientRemod);
         }
+
+        [Command(Permission.House, "Elevator test.", "elevatortest")]
+        public void HandleElevatorTest(ICommandContext context,
+            [Parameter("Decor ID")]
+            ulong decorId)
+        {
+            Player player = context.InvokingPlayer;
+            ResidenceMapInstance map = player?.Map as ResidenceMapInstance;
+            Residence res = map?.GetResidenceByZone(player.Zone.Id);
+            Decor dec = res.GetDecor(decorId);
+            if (dec != null)
+            {
+                List<Vector3> nodes = new();
+                nodes.Add(dec.Position);
+                nodes.Add(dec.Position + Vector3.UnitY * 5);
+                dec.Entity.MovementManager.LaunchSpline(nodes, Game.Entity.Movement.Spline.Static.SplineType.Linear, Game.Entity.Movement.Spline.Static.SplineMode.BackAndForth, 1);
+            }
+        }
+        
+        
+        /*[Command(Permission.House, "Elevator test.", "elevatortest")]
+        public void HandleElevatorTest(ICommandContext context,
+            [Parameter("Decor ID")]
+            ulong decorId)
+        {
+            Player player = context.InvokingPlayer;
+            ResidenceMapInstance map = player?.Map as ResidenceMapInstance;
+            Residence res = map?.GetResidenceByZone(player.Zone.Id);
+            Decor dec = res.GetDecor(decorId);
+            if (dec != null)
+            {
+                NonPlayer pl = new NonPlayer(GameTableManager.Instance.Creature2.GetEntry(1581), (long)decorId, (byte)dec.PlotIndex);
+                //Platform pl = new Platform(GameTableManager.Instance.Creature2.GetEntry(9501), (long)decorId, (byte)dec.PlotIndex);
+                map.SetDecorEntityProperties(dec, pl, dec.Position, dec.Rotation);
+                pl.InitialiseTemporaryEntity();
+                map.AddVisibleEntity(pl);
+
+                List<Vector3> nodes = new();
+                nodes.Add(dec.Position);
+                nodes.Add(dec.Position + Vector3.UnitY * 5);
+                pl.MovementManager.LaunchSpline(nodes, Game.Entity.Movement.Spline.Static.SplineType.Linear, Game.Entity.Movement.Spline.Static.SplineMode.BackAndForth, 1);
+
+                dec.RemoveEntity();
+                dec.SetEntity(pl);
+            }
+        }*/
     }
 }

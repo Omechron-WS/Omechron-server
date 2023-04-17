@@ -5,7 +5,6 @@ using System.Numerics;
 using NexusForever.Shared;
 using NexusForever.Shared.GameTable;
 using NexusForever.Shared.GameTable.Model;
-using NexusForever.Shared.GameTable.Static;
 using NexusForever.Shared.Network;
 using NexusForever.WorldServer.Game.Entity;
 using NexusForever.WorldServer.Game.Entity.Static;
@@ -294,9 +293,7 @@ namespace NexusForever.WorldServer.Game.Map
             var housingResidenceDecor = new ServerHousingResidenceDecor();
             foreach (Decor decor in residence.GetPlacedDecor())
             {
-                if (decor.Entity != null)
-                    foreach (WorldEntity entity in entities.Values.Where(i => i is Player))
-                        entity.RemoveVisible(decor.Entity);
+                RemoveVisibleEntity(decor.Entity);
 
                 decor.Crate();
                 housingResidenceDecor.DecorData.Add(decor.Build());
@@ -519,9 +516,7 @@ namespace NexusForever.WorldServer.Game.Map
                 {
                     if (update.DecorType == DecorType.Crate)
                     {
-                        if (decor.Entity != null)
-                            foreach (WorldEntity entity in entities.Values.Where(i => i is Player))
-                                entity.RemoveVisible(decor.Entity);
+                        RemoveVisibleEntity(decor.Entity);
 
                         decor.Crate();
                         decorEntities.Remove(decor.DecorId);
@@ -748,9 +743,7 @@ namespace NexusForever.WorldServer.Game.Map
 
             foreach (Decor decor in residence.GetPlacedDecor(plot.Index).ToList())
             {
-                if(decor.Entity != null)
-                    foreach (WorldEntity entity in entities.Values.Where(i => i is Player))
-                        entity.RemoveVisible(decor.Entity);
+                RemoveVisibleEntity(decor.Entity);
 
                 decor.Crate();
                 decorEntities.Remove(decor.DecorId);
@@ -962,7 +955,7 @@ namespace NexusForever.WorldServer.Game.Map
             return (ushort)entry.WorldSocketId;
         }
 
-        private WorldEntity SetDecorEntityProperties(Decor decor, WorldEntity entity, Vector3 position, Quaternion rotation)
+        public WorldEntity SetDecorEntityProperties(Decor decor, WorldEntity entity, Vector3 position, Quaternion rotation)
         {
             entity.Rotation = rotation.ToEulerRadians();
             entity.SetPosition(position);
@@ -1127,6 +1120,20 @@ namespace NexusForever.WorldServer.Game.Map
         {
             PropertyInfoId? pii = GetPropertyInfoByZone(zoneId);
             return residences.Values.Where(e => e.PropertyInfoId == pii).FirstOrDefault();
+        }
+
+        public void AddVisibleEntity(WorldEntity entity)
+        {
+            if (entity != null)
+                foreach (WorldEntity we in entities.Values.Where(i => i is Player))
+                    we.AddVisible(entity);
+        }
+
+        public void RemoveVisibleEntity(WorldEntity entity)
+        {
+            if (entity != null)
+                foreach (WorldEntity we in entities.Values.Where(i => i is Player))
+                    we.RemoveVisible(entity);
         }
     }
 }
