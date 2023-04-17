@@ -8,13 +8,24 @@ using NexusForever.WorldServer.Game.Entity;
 
 namespace NexusForever.WorldServer.Network.Message.Handler
 {
-    public static class ICCommsHandler
+    public static class ICCommHandler
     {
         private static readonly Logger log = LogManager.GetCurrentClassLogger();
 
         [MessageHandler(GameMessageOpcode.ClientIcCommJoin)]
         public static void HandleIcCommJoin(WorldSession session, ClientIcCommJoin icCommJoin)
         {
+            if(icCommJoin.Type != IcCommChannelType.Global) // not supporting guilds or parties right now.
+            {
+                session.EnqueueMessageEncrypted(new ServerIcCommJoinResult()
+                {
+                    Result = icCommJoin.Type == IcCommChannelType.Group ? IcCommJoinResult.NoGroup : IcCommJoinResult.NoGuild,
+                    Type = icCommJoin.Type,
+                    Channel = icCommJoin.Channel
+                });
+                return;
+            }
+
             IcCommChannel channel = GlobalIcCommManager.Instance.GetICChannel(icCommJoin.Type, icCommJoin.Channel, icCommJoin.GuildContext);
             if (channel == null)
             {
