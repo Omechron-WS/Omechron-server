@@ -342,11 +342,29 @@ namespace NexusForever.WorldServer.Command.Handler
             ResidenceMapInstance map = player?.Map as ResidenceMapInstance;
             Residence res = map?.GetResidenceByZone(player.Zone.Id);
             Decor dec = res.GetDecor(decorId);
-            if (dec != null)
+            WorldEntity en = dec.Entity;
+            if (dec != null && en != null)
             {
                 List<Vector3> nodes = new();
-                nodes.Add(dec.Position);
-                nodes.Add(dec.Position + Vector3.UnitY * 5);
+                nodes.Add(en.Position);
+                nodes.Add(en.Position + Vector3.UnitY * 5);
+
+                dec.RemoveEntity();
+
+                NonPlayer pl = new NonPlayer(GameTableManager.Instance.Creature2.GetEntry(1581), (long)decorId, (byte)dec.PlotIndex);
+                map.SetDecorEntityProperties(dec, pl, nodes[0], dec.Rotation);
+                pl.InitialiseTemporaryEntity();
+                dec.SetEntity(pl);
+                map.EnqueueAdd(pl, new MapPosition()
+                {
+                    Info = new MapInfo()
+                    {
+                        Entry = map.Entry,
+                        InstanceId = map.InstanceId
+                    },
+                    Position = nodes[0]
+                });
+
                 dec.Entity.MovementManager.LaunchSpline(nodes, Game.Entity.Movement.Spline.Static.SplineType.Linear, Game.Entity.Movement.Spline.Static.SplineMode.BackAndForth, 1);
             }
         }
