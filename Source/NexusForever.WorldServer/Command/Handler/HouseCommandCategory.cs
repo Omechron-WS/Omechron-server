@@ -333,10 +333,12 @@ namespace NexusForever.WorldServer.Command.Handler
             }, target, clientRemod);
         }
 
-        [Command(Permission.House, "Elevator test.", "elevatortest")]
-        public void HandleElevatorTest(ICommandContext context,
+        [Command(Permission.House, "Elevator test.", "elevatortestreplace")]
+        public void HandleElevatorTestReplace(ICommandContext context,
             [Parameter("Decor ID")]
-            ulong decorId)
+            ulong decorId,
+            [Parameter("Creature2 ID")]
+            ulong creature2Id)
         {
             Player player = context.InvokingPlayer;
             ResidenceMapInstance map = player?.Map as ResidenceMapInstance;
@@ -347,11 +349,11 @@ namespace NexusForever.WorldServer.Command.Handler
             {
                 List<Vector3> nodes = new();
                 nodes.Add(en.Position);
-                nodes.Add(en.Position + Vector3.UnitY * 5);
+                nodes.Add(en.Position + Vector3.UnitY * 20);
 
                 dec.RemoveEntity();
 
-                NonPlayer pl = new NonPlayer(GameTableManager.Instance.Creature2.GetEntry(1581), (long)decorId, (byte)dec.PlotIndex);
+                Platform pl = new Platform(GameTableManager.Instance.Creature2.GetEntry(creature2Id), (long)decorId, (byte)dec.PlotIndex);
                 map.SetDecorEntityProperties(dec, pl, nodes[0], dec.Rotation);
                 pl.InitialiseTemporaryEntity();
                 dec.SetEntity(pl);
@@ -364,12 +366,30 @@ namespace NexusForever.WorldServer.Command.Handler
                     },
                     Position = nodes[0]
                 });
+            }
+        }
+
+        [Command(Permission.House, "Elevator test.", "elevatortestmove")]
+        public void HandleElevatorTestMove(ICommandContext context,
+            [Parameter("Decor ID")]
+            ulong decorId)
+        {
+            Player player = context.InvokingPlayer;
+            ResidenceMapInstance map = player?.Map as ResidenceMapInstance;
+            Residence res = map?.GetResidenceByZone(player.Zone.Id);
+            Decor dec = res.GetDecor(decorId);
+            WorldEntity en = dec.Entity;
+            if (dec != null && en != null)
+            {
+                List<Vector3> nodes = new();
+                nodes.Add(en.Position);
+                nodes.Add(en.Position + Vector3.UnitY * 20);
 
                 dec.Entity.MovementManager.LaunchSpline(nodes, Game.Entity.Movement.Spline.Static.SplineType.Linear, Game.Entity.Movement.Spline.Static.SplineMode.BackAndForth, 1);
             }
         }
-        
-        
+
+
         /*[Command(Permission.House, "Elevator test.", "elevatortest")]
         public void HandleElevatorTest(ICommandContext context,
             [Parameter("Decor ID")]

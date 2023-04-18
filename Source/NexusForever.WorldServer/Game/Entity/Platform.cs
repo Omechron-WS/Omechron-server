@@ -12,6 +12,7 @@ using NexusForever.WorldServer.Game.Reputation.Static;
 using NexusForever.WorldServer.Game.Spell;
 using NexusForever.WorldServer.Network.Message.Model;
 using NexusForever.WorldServer.Script;
+using System.Linq;
 using System.Numerics;
 
 namespace NexusForever.WorldServer.Game.Entity
@@ -45,8 +46,14 @@ namespace NexusForever.WorldServer.Game.Entity
             Faction1 = (Faction)entry.FactionId;
             Faction2 = (Faction)entry.FactionId;
 
-            // temp
-            DisplayInfo = 24413;
+            Creature2DisplayGroupEntryEntry displayGroupEntry = GameTableManager.Instance.Creature2DisplayGroupEntry.Entries.FirstOrDefault(i => i.Creature2DisplayGroupId == entry.Creature2DisplayGroupId);
+            if (displayGroupEntry != null)
+                DisplayInfo = displayGroupEntry.Creature2DisplayInfoId;
+
+            Creature2OutfitGroupEntryEntry outfitGroupEntry = GameTableManager.Instance.Creature2OutfitGroupEntry.Entries.FirstOrDefault(i => i.Creature2OutfitGroupId == entry.Creature2OutfitGroupId);
+            if (outfitGroupEntry != null)
+                OutfitInfo = (ushort)outfitGroupEntry.Creature2OutfitInfoId;
+
             SetBaseProperty(Property.BaseHealth, 101f);
 
             SetStat(Stat.Health, 101u);
