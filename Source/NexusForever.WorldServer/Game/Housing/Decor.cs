@@ -398,12 +398,9 @@ namespace NexusForever.WorldServer.Game.Housing
 
         public void RemoveEntity()
         {
-            if (Entity != null)
+            if(Entity != null)
             {
-                MapManager.Instance.GetResidenceMapInstance(Residence.Id)?.EnqueueToAll(new ServerEntityDestroy
-                {
-                    Guid = Entity.Guid
-                });
+                Entity.RemoveFromMap();
                 Entity = null;
             }
         }

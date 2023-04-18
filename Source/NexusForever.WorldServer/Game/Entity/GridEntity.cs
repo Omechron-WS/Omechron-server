@@ -157,10 +157,6 @@ namespace NexusForever.WorldServer.Game.Entity
         /// </summary>
         public virtual T GetVisible<T>(uint guid) where T : WorldEntity
         {
-            if (Map is ResidenceMapInstance residenceMap)
-                if (residenceMap.TryGetDecorEntity(guid, out WorldEntity decorEntity))
-                    return (T)decorEntity;
-
             if (!visibleEntities.TryGetValue(guid, out GridEntity entity))
                 return null;
 
