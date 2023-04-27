@@ -12,6 +12,7 @@ using NexusForever.WorldServer.Game.Entity.Static;
 using NexusForever.WorldServer.Game.Housing;
 using NexusForever.WorldServer.Game.Housing.Static;
 using NexusForever.WorldServer.Game.Spell.Static;
+using NexusForever.WorldServer.Network.Message;
 using NexusForever.WorldServer.Network.Message.Model;
 using NexusForever.WorldServer.Network.Message.Model.Shared;
 using NLog;
@@ -119,6 +120,22 @@ namespace NexusForever.WorldServer.Game.Map
                 ActionBarShortcutSetId = 1553,
                 Guid                   = player.Guid
             });
+
+            foreach(Residence res in residences.Values)
+            {
+                if (res.CanModifyResidence(player))
+                {
+                    player.Session.EnqueueMessageEncrypted(new ServerHousingOwnership()
+                    {
+                        TargetResidence = new TargetResidence()
+                        {
+                            RealmId = WorldServer.RealmId,
+                            ResidenceId = res.Id
+                        },
+                        Value = 1
+                    });
+                }
+            }
         }
 
         /// <summary>

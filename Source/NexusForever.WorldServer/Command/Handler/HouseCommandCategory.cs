@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using Newtonsoft.Json.Linq;
 using NexusForever.Shared;
 using NexusForever.Shared.GameTable;
 using NexusForever.Shared.GameTable.Model;
@@ -11,7 +12,9 @@ using NexusForever.WorldServer.Game.Housing;
 using NexusForever.WorldServer.Game.Housing.Static;
 using NexusForever.WorldServer.Game.Map;
 using NexusForever.WorldServer.Game.RBAC.Static;
+using NexusForever.WorldServer.Network.Message;
 using NexusForever.WorldServer.Network.Message.Model;
+using NexusForever.WorldServer.Network.Message.Model.Shared;
 
 namespace NexusForever.WorldServer.Command.Handler
 {
@@ -329,6 +332,32 @@ namespace NexusForever.WorldServer.Command.Handler
                 ResidenceId = residence.Id,
                 RealmId = WorldServer.RealmId
             }, target, clientRemod);
+        }
+
+        [Command(Permission.GMFlag, "Add neighbor", "addneighbor")]
+        public void HandleAddNeighbor(ICommandContext context,
+            [Parameter("CharacterID")]
+            ulong val)
+        {
+            Player player = context.InvokingPlayer;
+            if (player == null) { return; }
+            Residence res = GlobalResidenceManager.Instance.GetResidenceByOwner(player.CharacterId);
+            if (res == null) { return; }
+            res.AddNeighbor(val, false);
+            res.SendNeighbors(player);
+        }
+
+        [Command(Permission.GMFlag, "Remove neighbor", "removeneighbor")]
+        public void HandleRemoveNeighbor(ICommandContext context,
+            [Parameter("CharacterID")]
+            ulong val)
+        {
+            Player player = context.InvokingPlayer;
+            if (player == null) { return; }
+            Residence res = GlobalResidenceManager.Instance.GetResidenceByOwner(player.CharacterId);
+            if (res == null) { return; }
+            res.RemoveNeighbor(val);
+            res.SendNeighbors(player);
         }
     }
 }

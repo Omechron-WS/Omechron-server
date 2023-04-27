@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using NexusForever.Database;
 using NexusForever.Database.Character;
 using NexusForever.Database.Character.Model;
+using NexusForever.Shared.Game;
 using NexusForever.Shared.GameTable;
 using NexusForever.Shared.GameTable.Model;
 using NexusForever.Shared.Network.Message;
@@ -249,6 +250,8 @@ namespace NexusForever.WorldServer.Game.Housing
         }
         private HousingResidenceInfoEntry residenceInfoEntry;
 
+        private Dictionary<ulong, Neighbor> neighbors = new();
+
         private ResidenceSaveMask saveMask;
 
         public bool IsCommunityResidence => GuildOwnerId.HasValue && !OwnerId.HasValue;
@@ -393,6 +396,51 @@ namespace NexusForever.WorldServer.Game.Housing
             foreach (HousingPlotInfoEntry entry in GameTableManager.Instance.HousingPlotInfo.Entries
                 .Where(e => (PropertyInfoId)e.HousingPropertyInfoId == PropertyInfoId))
                 GetPlot((byte)entry.HousingPropertyPlotIndex).PlotInfoEntry = entry;
+        }
+
+        public Neighbor GetNeighbor(Player player)
+        {
+            return GetNeighbor(player.CharacterId);
+        }
+
+        public Neighbor GetNeighbor(ulong id)
+        {
+            neighbors.TryGetValue(id, out Neighbor neighbor);
+            return neighbor;
+        }
+
+        public void AddNeighbor(ulong id, bool roommate)
+        {
+            if(GetNeighbor(id) != null)
+            {
+                return; // error
+            }
+            Neighbor neighbor = new Neighbor(id);
+            neighbor.IsRoommate = roommate;
+            neighbors.Add(id, neighbor);
+        }
+
+        public void RemoveNeighbor(ulong id)
+        {
+            neighbors.Remove(id);
+        }
+
+        public void SendNeighbors(Player player)
+        {
+            ServerHousingNeighbors shn = new ServerHousingNeighbors();
+            foreach(Neighbor neighbor in neighbors.Values)
+            {
+                shn.neighbors.Add(new ServerHousingNeighbors.NeighborData()
+                {
+                    roomie = new TargetPlayerIdentity()
+                    {
+                        CharacterId = neighbor.CharacterId,
+                        RealmId = WorldServer.RealmId
+                    },
+                    Roommate = true
+                });
+            }
+            player.Session.EnqueueMessageEncrypted(shn);
         }
 
         public void Save(CharacterContext context)

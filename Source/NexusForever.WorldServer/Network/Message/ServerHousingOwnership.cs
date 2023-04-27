@@ -8,7 +8,7 @@ namespace NexusForever.WorldServer.Network.Message
     public class ServerHousingOwnership : IWritable
     {
         public TargetResidence TargetResidence { get; set; }
-        public uint Value { get; set; } 
+        public int Value { get; set; } 
 
         public void Write(GamePacketWriter writer)
         {
