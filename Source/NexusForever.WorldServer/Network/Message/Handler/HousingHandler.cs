@@ -590,5 +590,23 @@ namespace NexusForever.WorldServer.Network.Message.Handler
 
             residenceMap.DecorUpdate(session.Player, remodelInterior);
         }
+
+        [MessageHandler(GameMessageOpcode.ClientHousingAddNeighbor)]
+        public static void HandleHousingAddNeighbor(WorldSession session, ClientHousingAddNeighbor remodelInterior)
+        {
+            int a = 0;
+        }
+
+        [MessageHandler(GameMessageOpcode.ClientHousingRemoveNeighbor)]
+        public static void HandleHousingRemoveNeighbor(WorldSession session, ClientHousingRemoveNeighbor remodelInterior)
+        {
+            int a = 0;
+        }
+
+        [MessageHandler(GameMessageOpcode.ClientHousingSetRoommate)]
+        public static void HandleHousingSetRoommate(WorldSession session, ClientHousingSetRoommate remodelInterior)
+        {
+            int a = 0;
+        }
     }
 }
