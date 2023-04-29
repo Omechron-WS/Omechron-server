@@ -12,15 +12,15 @@ namespace NexusForever.WorldServer.Network.Message.Model
         {
             public TargetPlayerIdentity roomie;
             //public ulong CharacterId;
-            public bool Roommate = false;
+            public byte RoommateType = 0;
             public void Write(GamePacketWriter writer)
             {
                 // 238 bits long; 2 bits short of 30 bytes
-                writer.Write((ulong) 1); // 64
-                writer.Write((ulong) 1); // 128
+                writer.Write((ulong)1); // 64
+                writer.Write((ulong)1); // 128
                 roomie.Write(writer); // 206
-                writer.Write((byte)0); // 214
-                writer.Write((ulong)(2^24)-1, 24); // 238
+                writer.Write(RoommateType, 2); // 208
+                writer.Write((ulong)0, 30); // 238
             }
         }
 

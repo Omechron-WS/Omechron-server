@@ -13,6 +13,7 @@ namespace NexusForever.WorldServer.Game.Housing
             this.CharacterId = characterId;
         }
         public ulong CharacterId { get; private set; }
-        public bool IsRoommate;
+        public bool IsRoommate = false;
+        public bool IsPending = true;
     }
 }

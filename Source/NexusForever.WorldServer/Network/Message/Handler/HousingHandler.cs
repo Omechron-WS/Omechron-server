@@ -592,21 +592,29 @@ namespace NexusForever.WorldServer.Network.Message.Handler
         }
 
         [MessageHandler(GameMessageOpcode.ClientHousingAddNeighbor)]
-        public static void HandleHousingAddNeighbor(WorldSession session, ClientHousingAddNeighbor remodelInterior)
+        public static void HandleHousingAddNeighbor(WorldSession session, ClientHousingAddNeighbor addNeighbor)
         {
             int a = 0;
         }
 
         [MessageHandler(GameMessageOpcode.ClientHousingRemoveNeighbor)]
-        public static void HandleHousingRemoveNeighbor(WorldSession session, ClientHousingRemoveNeighbor remodelInterior)
+        public static void HandleHousingRemoveNeighbor(WorldSession session, ClientHousingRemoveNeighbor removeNeighbor)
         {
-            int a = 0;
+            Residence res = GlobalResidenceManager.Instance.GetResidenceByOwner(session.Player.CharacterId);
+            res?.RemoveNeighbor(removeNeighbor.player.CharacterId);
+
+            res = GlobalResidenceManager.Instance.GetResidenceByOwner(removeNeighbor.player.CharacterId);
+            res?.RemoveNeighbor(session.Player.CharacterId);
+            res.SendNeighbors(session.Player);
         }
 
         [MessageHandler(GameMessageOpcode.ClientHousingSetRoommate)]
-        public static void HandleHousingSetRoommate(WorldSession session, ClientHousingSetRoommate remodelInterior)
+        public static void HandleHousingSetRoommate(WorldSession session, ClientHousingSetRoommate setRoommate)
         {
-            int a = 0;
+            Residence res = GlobalResidenceManager.Instance.GetResidenceByOwner(session.Player.CharacterId);
+            var nb = res?.GetNeighbor(setRoommate.player.CharacterId);
+            nb.IsRoommate = setRoommate.roommate > 0;
+            res.SendNeighbors(session.Player);
         }
     }
 }

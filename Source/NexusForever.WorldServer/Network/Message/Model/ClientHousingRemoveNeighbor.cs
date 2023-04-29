@@ -8,8 +8,8 @@ namespace NexusForever.WorldServer.Network.Message.Model
     [Message(GameMessageOpcode.ClientHousingRemoveNeighbor)]
     public class ClientHousingRemoveNeighbor : IReadable
     {
-        TargetPlayerIdentity player = new TargetPlayerIdentity();
-        ushort Unknown1;
+        public TargetPlayerIdentity player = new TargetPlayerIdentity();
+        public ushort Unknown1;
         
         public void Read(GamePacketReader reader)
         {

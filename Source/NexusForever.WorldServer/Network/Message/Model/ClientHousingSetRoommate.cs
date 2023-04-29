@@ -8,8 +8,8 @@ namespace NexusForever.WorldServer.Network.Message.Model
     [Message(GameMessageOpcode.ClientHousingSetRoommate)]
     public class ClientHousingSetRoommate : IReadable
     {
-        TargetPlayerIdentity player = new TargetPlayerIdentity();
-        byte roommate = 0;
+        public TargetPlayerIdentity player = new TargetPlayerIdentity();
+        public byte roommate = 0;
 
         public void Read(GamePacketReader reader)
         {

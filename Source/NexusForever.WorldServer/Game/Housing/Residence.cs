@@ -437,7 +437,7 @@ namespace NexusForever.WorldServer.Game.Housing
                         CharacterId = neighbor.CharacterId,
                         RealmId = WorldServer.RealmId
                     },
-                    Roommate = true
+                    RoommateType = (byte)(neighbor.IsRoommate ? 1 : 0)
                 });
             }
             player.Session.EnqueueMessageEncrypted(shn);
