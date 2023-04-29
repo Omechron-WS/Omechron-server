@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Network\Message\Handler\HousingHandler.cs~RFf8faf3.TMP" />
     <None Remove="wwwroot\console.html" />
   </ItemGroup>
 

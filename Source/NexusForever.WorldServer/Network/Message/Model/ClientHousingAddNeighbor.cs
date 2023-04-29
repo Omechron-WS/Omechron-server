@@ -8,15 +8,15 @@ namespace NexusForever.WorldServer.Network.Message.Model
     [Message(GameMessageOpcode.ClientHousingAddNeighbor)]
     public class ClientHousingAddNeighbor : IReadable
     {
-        ulong Unknown1;
-        ushort Unknown2;
-        string CharacterName;
-        ushort Unknown3;
+        public ushort Unknown1;
+        public ulong Unknown2;
+        public string CharacterName;
+        public ushort Unknown3;
         
         public void Read(GamePacketReader reader)
         {
-            Unknown1 = reader.ReadULong();
-            Unknown2 = reader.ReadUShort(14);
+            Unknown1 = reader.ReadUShort(14);
+            Unknown2 = reader.ReadULong(); // possible TargetPlayer? But is 0.
             CharacterName = reader.ReadWideString();
             Unknown3 = reader.ReadUShort(10);
         }

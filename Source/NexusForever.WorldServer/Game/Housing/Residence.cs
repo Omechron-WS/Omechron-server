@@ -409,15 +409,16 @@ namespace NexusForever.WorldServer.Game.Housing
             return neighbor;
         }
 
-        public void AddNeighbor(ulong id, bool roommate)
+        public Neighbor AddNeighbor(ulong id)
         {
             if(GetNeighbor(id) != null)
             {
-                return; // error
+                return null; // error
             }
             Neighbor neighbor = new Neighbor(id);
-            neighbor.IsRoommate = roommate;
+            neighbor.Permission = NeighborPermission.Neighbor;
             neighbors.Add(id, neighbor);
+            return neighbor;
         }
 
         public void RemoveNeighbor(ulong id)
@@ -432,12 +433,12 @@ namespace NexusForever.WorldServer.Game.Housing
             {
                 shn.neighbors.Add(new ServerHousingNeighbors.NeighborData()
                 {
-                    roomie = new TargetPlayerIdentity()
+                    Character = new TargetPlayerIdentity()
                     {
                         CharacterId = neighbor.CharacterId,
                         RealmId = WorldServer.RealmId
                     },
-                    RoommateType = (byte)(neighbor.IsRoommate ? 1 : 0)
+                    Permission = neighbor.Permission
                 });
             }
             player.Session.EnqueueMessageEncrypted(shn);

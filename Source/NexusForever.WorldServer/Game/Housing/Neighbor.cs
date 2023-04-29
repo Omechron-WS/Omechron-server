@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NexusForever.WorldServer.Game.Housing.Static;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,7 +14,7 @@ namespace NexusForever.WorldServer.Game.Housing
             this.CharacterId = characterId;
         }
         public ulong CharacterId { get; private set; }
-        public bool IsRoommate = false;
+        public NeighborPermission Permission = NeighborPermission.Neighbor;
         public bool IsPending = true;
     }
 }

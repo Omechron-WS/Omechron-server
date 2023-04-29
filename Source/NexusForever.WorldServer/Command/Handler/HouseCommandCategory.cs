@@ -347,7 +347,7 @@ namespace NexusForever.WorldServer.Command.Handler
                 if (player == null) { return; }
                 Residence res = GlobalResidenceManager.Instance.GetResidenceByOwner(player.CharacterId);
                 if (res == null) { return; }
-                res.AddNeighbor(val, false);
+                res.AddNeighbor(val);
                 res.SendNeighbors(player);
             }
         }
