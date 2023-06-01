@@ -932,7 +932,7 @@ namespace NexusForever.WorldServer.Game.Map
             }
         }
 
-        private ushort GetPlotIdForDecorEntity(Residence residence, uint plotIndex)
+        public static ushort GetPlotIdForDecorEntity(Residence residence, uint plotIndex)
         {
             Dictionary<PropertyInfoId, ushort> plotIdLookup = new Dictionary<PropertyInfoId, ushort> // ugliest hack. You need the root plot ID, not the actual decor plot ID.
             {

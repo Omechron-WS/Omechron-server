@@ -7,7 +7,7 @@ namespace NexusForever.WorldServer.Command.Convert
     {
         public object Convert(ICommandContext context, ParameterQueue queue)
         {
-            return Enum.Parse(typeof(T), queue.Dequeue());
+            return Enum.Parse(typeof(T), queue.Dequeue(), true);
         }
     }
 }
