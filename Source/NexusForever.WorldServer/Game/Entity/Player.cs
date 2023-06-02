@@ -51,22 +51,7 @@ namespace NexusForever.WorldServer.Game.Entity
         private const double SaveDuration = 60d;
 
         public ulong CharacterId { get; }
-
-        public string Name
-        {
-            get { return name; }
-            set
-            {
-                if(!IsValidNameChange(value))
-                {
-                    throw new ArgumentException("Name for name change was already taken!");
-                }
-                name = value;
-                saveMask |= PlayerSaveMask.Name;
-            }
-        }
-        private string name;
-
+        public string Name { get; private set; }
         public Sex Sex { get; private set; }
         public Race Race { get; private set; }
 
@@ -1794,6 +1779,21 @@ namespace NexusForever.WorldServer.Game.Entity
                 return false;
             }
             return true;
+        }
+
+        public bool ChangeName(string name)
+        {
+            if(Player.IsValidNameChange(name))
+            {
+                Name = name;
+                saveMask |= PlayerSaveMask.Name;
+                Save();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public void SetPvpMode(bool pvpMode)
