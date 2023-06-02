@@ -408,14 +408,41 @@ namespace NexusForever.WorldServer.Command.Handler
 
         [Command(Permission.None, "Change character name.", "changename")]
         public void HandleChangeName(ICommandContext context,
+           [Parameter("First name.")]
+            string firstName,
+            [Parameter("Last name.", ParameterFlags.Optional)]
+            string? lastName)
+        {
+            if (lastName == null)
+            {
+                context.SendMessage("You did not specify a last name. For names that don't follow the \"Firstname Lastname\" style, use changenamewild, and put your name in quotes.");
+                return;
+            }
+            string name = firstName + " " + lastName;
+            Player player = context.InvokingPlayer;
+            if (player.ChangeName(name))
+            {
+                context.SendMessage("Name changed, please log out completely!");
+            }
+            else
+            {
+                context.SendMessage("Name was taken or invalid.");
+            }
+        }
+
+        [Command(Permission.None, "Change character name to something other than firstname-lastname.", "changenamewild")]
+        public void HandleChangeNameWild(ICommandContext context,
            [Parameter("New name.")]
             string newName)
         {
-            if (Player.IsValidNameChange(newName))
+            Player player = context.InvokingPlayer;
+            if (player.ChangeName(newName))
             {
-                Player player = context.InvokingPlayer;
-                player.Name = newName;
-                player.Save();
+                context.SendMessage("Name changed, please log out completely!");
+            }
+            else
+            {
+                context.SendMessage("Name was taken or invalid.");
             }
         }
 
@@ -427,6 +454,7 @@ namespace NexusForever.WorldServer.Command.Handler
             Player player = context.InvokingPlayer;
             player.Class = newClass;
             player.Save();
+            context.SendMessage("Class changed, please log out completely!");
         }
     }
 }
