@@ -71,6 +71,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler
         [MessageHandler(GameMessageOpcode.ClientIcCommSendMessage)]
         public static void HandleIcCommSendMessage(WorldSession session, ClientIcCommSendMessage icCommSendMessage)
         {
+            if (session?.Player == null) { return; }
             IcCommMessageResult result = IcCommMessageResult.Sent;
             IcCommChannel channel = GlobalIcCommManager.Instance.GetICChannel(icCommSendMessage.ChannelID);
             if (channel == null)

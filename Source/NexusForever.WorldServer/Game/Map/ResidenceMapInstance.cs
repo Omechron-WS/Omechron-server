@@ -938,10 +938,10 @@ namespace NexusForever.WorldServer.Game.Map
             switch (creatureEntry.CreationTypeEnum)
             {
                 case 0:
-                    NonPlayer nonPlayerEntity = new NonPlayer(creatureEntry, decor is TemporaryDecor ? ((TemporaryDecor)decor).DecorId : (long)decor.DecorId, GetPlotId(decor.Residence, (byte)decor.PlotIndex)); // TODO: Update PlugId to match ID of Plot at Decor's PlotIndex.
+                    NonPlayer nonPlayerEntity = new NonPlayer(creatureEntry, decor is TemporaryDecor ? ((TemporaryDecor)decor).DecorId : (long)decor.DecorId, GetPlotIdForDecorEntity(decor.Residence, (byte)decor.PlotIndex)); // TODO: Update PlugId to match ID of Plot at Decor's PlotIndex.
                     return SetDecorEntityProperties(decor, nonPlayerEntity, position, rotation);
                 case 10:
-                    Simple activateEntity = new Simple(creatureEntry, decor.ClientDecorId != 0u ? (long)decor.ClientDecorId : decor is TemporaryDecor ? ((TemporaryDecor)decor).DecorId : (long)decor.DecorId, GetPlotId(decor.Residence, (byte)decor.PlotIndex)); // TODO: Update PlugId to match ID of Plot at Decor's PlotIndex.
+                    Simple activateEntity = new Simple(creatureEntry, decor.ClientDecorId != 0u ? (long)decor.ClientDecorId : decor is TemporaryDecor ? ((TemporaryDecor)decor).DecorId : (long)decor.DecorId, GetPlotIdForDecorEntity(decor.Residence, (byte)decor.PlotIndex)); // TODO: Update PlugId to match ID of Plot at Decor's PlotIndex.
 
                     return SetDecorEntityProperties(decor, activateEntity, position, rotation);
                 default:
@@ -950,13 +950,29 @@ namespace NexusForever.WorldServer.Game.Map
             }
         }
 
-        private ushort GetPlotId(Residence residence, byte plotIndex)
+        private ushort GetPlotIdForDecorEntity(Residence residence, uint plotIndex)
         {
-            HousingPlotInfoEntry entry = residence.GetPlot(plotIndex)?.PlotInfoEntry;
+            Dictionary<PropertyInfoId, ushort> plotIdLookup = new Dictionary<PropertyInfoId, ushort> // ugliest hack. You need the root plot ID, not the actual decor plot ID.
+            {
+                { PropertyInfoId.Residence, 1159 },
+                { PropertyInfoId.Community, 2381 },
+                { PropertyInfoId.CommunityResidence1, 2304 },
+                { PropertyInfoId.CommunityResidence2, 2311 },
+                { PropertyInfoId.CommunityResidence3, 2318 },
+                { PropertyInfoId.CommunityResidence4, 2325 },
+                { PropertyInfoId.CommunityResidence5, 2332 }
+            };
+
+            if (plotIdLookup.TryGetValue(residence.PropertyInfoId, out ushort plotId))
+            {
+                return plotId;
+            }
+            return 1159;
+            /*HousingPlotInfoEntry entry = residence.GetPlotByIndex(plotIndex)?.PlotInfoEntry;
             if (entry == null)
                 return (ushort)(residence.GetPlot(plotIndex)?.PlotInfoEntry.WorldSocketId ?? 1159);
 
-            return (ushort)entry.WorldSocketId;
+            return (ushort)entry.WorldSocketId;*/
         }
 
         private WorldEntity SetDecorEntityProperties(Decor decor, WorldEntity entity, Vector3 position, Quaternion rotation)
