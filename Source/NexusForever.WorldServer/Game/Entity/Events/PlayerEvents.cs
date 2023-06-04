@@ -3,6 +3,7 @@ using NexusForever.Shared.GameTable.Model;
 using NexusForever.Shared.GameTable.Static;
 using NexusForever.WorldServer.Game.Cinematic.Cinematics;
 using NexusForever.WorldServer.Game.Entity.Static;
+using NexusForever.WorldServer.Game.Housing;
 using NexusForever.WorldServer.Game.Map;
 using NexusForever.WorldServer.Game.Quest.Static;
 using NexusForever.WorldServer.Game.Social;
@@ -90,6 +91,8 @@ namespace NexusForever.WorldServer.Game.Entity
             else
                 SetDeathState(DeathState.JustSpawned);
 
+            SendNeighbors();
+
             if (PreviousMap == null)
                 OnLogin();
         }
@@ -120,6 +123,12 @@ namespace NexusForever.WorldServer.Game.Entity
             // This allows player to exit loading screen
             Session.EnqueueMessageEncrypted(new ServerPlayerEnteredWorld());
             IsLoading = false;
+        }
+
+        public void SendNeighbors()
+        {
+            Residence ownedResidence = GlobalResidenceManager.Instance.GetResidenceByOwner(CharacterId);
+            ownedResidence?.SendNeighbors(this);
         }
 
         public override void OnRemoveFromMap()

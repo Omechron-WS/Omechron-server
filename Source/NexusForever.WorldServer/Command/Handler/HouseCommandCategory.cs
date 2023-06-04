@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
+using Newtonsoft.Json.Linq;
 using NexusForever.Shared;
 using NexusForever.Shared.GameTable;
 using NexusForever.Shared.GameTable.Model;
@@ -15,7 +16,9 @@ using NexusForever.WorldServer.Game.Housing;
 using NexusForever.WorldServer.Game.Housing.Static;
 using NexusForever.WorldServer.Game.Map;
 using NexusForever.WorldServer.Game.RBAC.Static;
+using NexusForever.WorldServer.Network.Message;
 using NexusForever.WorldServer.Network.Message.Model;
+using NexusForever.WorldServer.Network.Message.Model.Shared;
 
 namespace NexusForever.WorldServer.Command.Handler
 {
@@ -101,7 +104,8 @@ namespace NexusForever.WorldServer.Command.Handler
             if (!string.IsNullOrWhiteSpace(lastName))
             {
                 name = $"{name} {lastName}";
-            } else if (string.IsNullOrWhiteSpace(name))
+            }
+            else if (string.IsNullOrWhiteSpace(name))
             {
                 name = target.Name;
             }
@@ -158,7 +162,7 @@ namespace NexusForever.WorldServer.Command.Handler
         {
             Residence res = GlobalResidenceManager.GetCurrentVisitedResidence(context.InvokingPlayer);
             bool setLock;
-            if(setting.Equals("on", StringComparison.InvariantCultureIgnoreCase))
+            if (setting.Equals("on", StringComparison.InvariantCultureIgnoreCase))
             {
                 setLock = true;
             }
@@ -295,7 +299,7 @@ namespace NexusForever.WorldServer.Command.Handler
             else if (option.ToLower() == "house")
             {
                 var plugItem = GameTableManager.Instance.HousingPlugItem.GetEntry(id);
-                if(plugItem != null)
+                if (plugItem != null)
                 {
                     ClientHousingPlugUpdate pu = new ClientHousingPlugUpdate
                     {
@@ -333,6 +337,23 @@ namespace NexusForever.WorldServer.Command.Handler
                 ResidenceId = residence.Id,
                 RealmId = WorldServer.RealmId
             }, target, clientRemod);
+        }
+
+        [Command(Permission.House, "A collection of commands to modify decor in housing residences.", "neighbor")]
+        public class HouseNeighborCommandCategory : CommandCategory
+        {
+            [Command(Permission.GMFlag, "Add neighbor", "add")]
+            public void HandleAddNeighbor(ICommandContext context,
+                [Parameter("CharacterID")]
+                ulong val)
+            {
+                Player player = context.InvokingPlayer;
+                if (player == null) { return; }
+                Residence res = GlobalResidenceManager.Instance.GetResidenceByOwner(player.CharacterId);
+                if (res == null) { return; }
+                res.AddNeighbor(val);
+                res.SendNeighbors(player);
+            }
         }
 
         [Command(Permission.House, "Set decor entity.", "setentity")]
