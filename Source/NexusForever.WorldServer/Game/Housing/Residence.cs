@@ -10,6 +10,7 @@ using NexusForever.Shared.Game;
 using NexusForever.Shared.GameTable;
 using NexusForever.Shared.GameTable.Model;
 using NexusForever.Shared.Network.Message;
+using NexusForever.WorldServer.Game.CharacterCache;
 using NexusForever.WorldServer.Game.Entity;
 using NexusForever.WorldServer.Game.Guild;
 using NexusForever.WorldServer.Game.Guild.Static;
@@ -418,6 +419,22 @@ namespace NexusForever.WorldServer.Game.Housing
             Neighbor neighbor = new Neighbor(id);
             neighbor.Permission = NeighborPermission.Neighbor;
             neighbors.Add(id, neighbor);
+
+            Player neighborino = CharacterManager.Instance.GetPlayer(id);
+            if (neighborino != null)
+            {
+                SendNeighbors(neighborino);
+            }
+
+            if (OwnerId != null)
+            {
+                Player owner = CharacterManager.Instance.GetPlayer((ulong) OwnerId);
+                if (owner != null)
+                {
+                    SendNeighbors(owner);
+                }
+            }
+
             return neighbor;
         }
 
@@ -849,6 +866,15 @@ namespace NexusForever.WorldServer.Game.Housing
                 }
                 case ResidenceType.Residence:
                 {
+                    neighbors.TryGetValue(player.CharacterId, out Neighbor nb);
+                    if(nb != null)
+                    {
+                        if (nb.Permission == NeighborPermission.Neighbor)
+                        {
+                            return true;
+                        }
+                    }
+
                     // TODO: roommates can also update decor
                     return player.CharacterId == OwnerId;
                 }
