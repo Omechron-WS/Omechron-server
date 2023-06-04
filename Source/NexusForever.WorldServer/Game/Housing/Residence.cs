@@ -869,7 +869,7 @@ namespace NexusForever.WorldServer.Game.Housing
                     neighbors.TryGetValue(player.CharacterId, out Neighbor nb);
                     if(nb != null)
                     {
-                        if (nb.Permission == NeighborPermission.Neighbor)
+                        if (nb.Permission == NeighborPermission.Roommate)
                         {
                             return true;
                         }
