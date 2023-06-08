@@ -36,6 +36,8 @@ namespace NexusForever.WorldServer.Game.Housing
         private DateTime unlockTime18Plus = DateTime.MinValue;
         private bool waitForEmptyPlot18Plus = false;
 
+        private Dictionary<string, ResidenceCustomEntrance> customEntrances = new Dictionary<string, ResidenceCustomEntrance>(StringComparer.OrdinalIgnoreCase);
+
         public ulong? GuildOwnerId
         {
             get => guildOwnerId;
