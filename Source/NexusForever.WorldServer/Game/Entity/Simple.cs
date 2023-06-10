@@ -45,6 +45,8 @@ namespace NexusForever.WorldServer.Game.Entity
                 FirstOrDefault(d => d.Creature2DisplayGroupId == entry.Creature2DisplayGroupId);
             if (displayGroupEntry != null)
                 DisplayInfo = displayGroupEntry.Creature2DisplayInfoId;
+
+            ScriptManager.Instance.GetScript<CreatureScript>(CreatureId)?.OnCreate(this);
         }
 
         public Simple(Creature2Entry entry, long propId, ushort plugId)
@@ -62,6 +64,8 @@ namespace NexusForever.WorldServer.Game.Entity
                 DisplayInfo = displayGroupEntry.Creature2DisplayInfoId;
 
             CreateFlags |= EntityCreateFlag.SpawnAnimation;
+
+            ScriptManager.Instance.GetScript<CreatureScript>(CreatureId)?.OnCreate(this);
         }
 
         public override void Initialise(EntityModel model)

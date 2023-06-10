@@ -54,6 +54,8 @@ namespace NexusForever.WorldServer.Game.Entity
             stats.Add(Stat.Level, new StatValue(Stat.Level, 1));
 
             CreateFlags |= EntityCreateFlag.SpawnAnimation;
+
+            ScriptManager.Instance.GetScript<CreatureScript>(CreatureId)?.OnCreate(this);
         }
 
         public override void Initialise(EntityModel model)

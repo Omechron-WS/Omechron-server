@@ -31,6 +31,8 @@ namespace NexusForever.WorldServer.Game.Entity
             SetBaseProperty(Property.BaseHealth, 101f);
 
             SetStat(Stat.Health, 101u);
+
+            ScriptManager.Instance.GetScript<CreatureScript>(CreatureId)?.OnCreate(this);
         }
 
         public override void Initialise(EntityModel model)
@@ -51,6 +53,8 @@ namespace NexusForever.WorldServer.Game.Entity
 
             Properties.Add(Property.BaseHealth, new PropertyValue(Property.BaseHealth, 101f, 101f));
             stats.Add(Stat.Health, new StatValue(Stat.Health, 101u));
+
+            ScriptManager.Instance.GetScript<CreatureScript>(CreatureId)?.OnCreate(this);
         }
 
         protected override IEntityModel BuildEntityModel()
