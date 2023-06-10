@@ -6,6 +6,7 @@ using System.Numerics;
 using NexusForever.Shared;
 using NexusForever.Shared.GameTable;
 using NexusForever.Shared.GameTable.Model;
+using NexusForever.WorldServer.Game.Housing;
 using NexusForever.WorldServer.Game.Map;
 using NexusForever.WorldServer.Game.Map.Search;
 
@@ -16,6 +17,17 @@ namespace NexusForever.WorldServer.Game.Entity
         public uint Guid { get; protected set; }
         public BaseMap Map { get; protected set; }
         public WorldZoneEntry Zone { get; private set; }
+        public Residence CurrentResidence
+        {
+            get
+            {
+                if (Map is ResidenceMapInstance rmap && Zone != null)
+                {
+                    return rmap.GetResidenceByZone(Zone.Id);
+                }
+                return null;
+            }
+        }
         public Vector3 Position { get; protected set; }
 
         public MapInfo PreviousMap { get; private set; }

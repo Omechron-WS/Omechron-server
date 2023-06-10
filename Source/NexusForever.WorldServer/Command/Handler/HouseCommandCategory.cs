@@ -19,7 +19,6 @@ using NexusForever.WorldServer.Network.Message.Model.Shared;
 namespace NexusForever.WorldServer.Command.Handler
 {
     [Command(Permission.House, "A collection of commands to modify housing residences.", "house")]
-    [CommandTarget(typeof(Player))]
     public class HouseCommandCategory : CommandCategory
     {
         [Command(Permission.HouseDecor, "A collection of commands to modify decor in housing residences.", "decor")]
@@ -39,6 +38,7 @@ namespace NexusForever.WorldServer.Command.Handler
 
             public static void DecorAdd_impl(ICommandContext context, uint decorInfoId, uint? quantity, ushort? color = null)
             {
+                Residence res = context.InvokingPlayer?.CurrentResidence;
                 quantity ??= 1u;
 
                 HousingDecorInfoEntry entry = GameTableManager.Instance.HousingDecorInfo.GetEntry(decorInfoId);
@@ -48,7 +48,30 @@ namespace NexusForever.WorldServer.Command.Handler
                     return;
                 }
 
-                context.GetTargetOrInvoker<Player>().ResidenceManager.DecorCreate(entry, quantity.Value, color);
+                if (res == null || !res.CanModifyResidence(context.InvokingPlayer))
+                {
+                    res = context.InvokingPlayer?.ResidenceManager?.Residence;
+                }
+                if (res != null)
+                {
+                    if (res.Map != null)
+                    {
+                        if (color != null)
+                            res.Map.DecorCreate(res, entry, (uint)quantity, (ushort)color);
+                        else
+                            res.Map.DecorCreate(res, entry, (uint)quantity);
+                    }
+                    else
+                    {
+                        for (int i = 0; i < quantity.Value; ++i)
+                        {
+                            if (color != null)
+                                res.DecorCreate(entry, (ushort)color);
+                            else
+                                res.DecorCreate(entry);
+                        }
+                    }
+                }
             }
 
             [Command(Permission.HouseDecorLookup, "Returns a list of decor ids that match the supplied name.", "lookup")]
@@ -90,7 +113,7 @@ namespace NexusForever.WorldServer.Command.Handler
             [Parameter("", ParameterFlags.Optional)]
             string lastName)
         {
-            Player target = context.GetTargetOrInvoker<Player>();
+            Player target = context.InvokingPlayer;
             if (!target.CanTeleport())
             {
                 context.SendMessage("You have a pending teleport! Please wait to use this command.");
