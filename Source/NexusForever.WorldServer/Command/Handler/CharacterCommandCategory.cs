@@ -1,4 +1,6 @@
 ﻿using NexusForever.WorldServer.Command.Context;
+using NexusForever.WorldServer.Command.Convert;
+using NexusForever.WorldServer.Command.Static;
 using NexusForever.WorldServer.Game.Entity;
 using NexusForever.WorldServer.Game.Entity.Static;
 using NexusForever.WorldServer.Game.Map;
@@ -225,7 +227,7 @@ namespace NexusForever.WorldServer.Command.Handler
             target.WipeEffectsByID(63490);
             target.WipeEffectsByID(63491);
             uint mStacks = maxStacks ?? 20;
-            if(mStacks > 100)
+            if (mStacks > 100)
             {
                 mStacks = 100;
             }
@@ -244,9 +246,9 @@ namespace NexusForever.WorldServer.Command.Handler
 
             float scale = 1f;
 
-            while(smallStacks + largeStacks < mStacks)
+            while (smallStacks + largeStacks < mStacks)
             {
-                if(scale < targetScale)
+                if (scale < targetScale)
                 {
                     largeStacks += 1;
                 }
@@ -256,12 +258,12 @@ namespace NexusForever.WorldServer.Command.Handler
                 }
                 scale = MathF.Pow(1.5f, largeStacks) * MathF.Pow(0.8f, smallStacks);
                 float error = scale / targetScale;
-                if(error < 1f)
+                if (error < 1f)
                 {
                     error = 1f / error;
                 }
                 error -= 1f;
-                if(error < bestError)
+                if (error < bestError)
                 {
                     bestError = error;
                     bestSmallStacks = smallStacks;
@@ -297,7 +299,7 @@ namespace NexusForever.WorldServer.Command.Handler
            [Parameter("Maximum number of stacks.", Static.ParameterFlags.Optional)]
             uint? maxStacks)
         {
-            UnitEntity target = (UnitEntity) context.Target;
+            UnitEntity target = (UnitEntity)context.Target;
             target.WipeEffectsByID(63490);
             target.WipeEffectsByID(63491);
             uint mStacks = maxStacks ?? 20;
@@ -402,6 +404,57 @@ namespace NexusForever.WorldServer.Command.Handler
 
             // FIXME: also cast 52539,Riding License - Riding Skill 1 - SWC - Tier 1,34464
             // FIXME: also cast 80530,Mount Sprint  - Tier 2,36122
+        }
+
+        [Command(Permission.None, "Change character name.", "changename")]
+        public void HandleChangeName(ICommandContext context,
+           [Parameter("First name.")]
+            string firstName,
+            [Parameter("Last name.", ParameterFlags.Optional)]
+            string? lastName)
+        {
+            if (lastName == null)
+            {
+                context.SendMessage("You did not specify a last name. For names that don't follow the \"Firstname Lastname\" style, use changenamewild, and put your name in quotes.");
+                return;
+            }
+            string name = firstName + " " + lastName;
+            Player player = context.InvokingPlayer;
+            if (player.ChangeName(name))
+            {
+                context.SendMessage("Name changed, please log out completely!");
+            }
+            else
+            {
+                context.SendMessage("Name was taken or invalid.");
+            }
+        }
+
+        [Command(Permission.None, "Change character name to something other than firstname-lastname.", "changenamewild")]
+        public void HandleChangeNameWild(ICommandContext context,
+           [Parameter("New name.")]
+            string newName)
+        {
+            Player player = context.InvokingPlayer;
+            if (player.ChangeName(newName))
+            {
+                context.SendMessage("Name changed, please log out completely!");
+            }
+            else
+            {
+                context.SendMessage("Name was taken or invalid.");
+            }
+        }
+
+        [Command(Permission.None, "Change character class.", "changeclass")]
+        public void HandleChangeClass(ICommandContext context,
+           [Parameter("New class.", ParameterFlags.None, typeof(EnumParameterConverter<Class>))]
+            Class newClass)
+        {
+            Player player = context.InvokingPlayer;
+            player.Class = newClass;
+            player.Save();
+            context.SendMessage("Class changed, please log out completely!");
         }
     }
 }

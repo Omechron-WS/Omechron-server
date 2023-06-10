@@ -51,10 +51,21 @@ namespace NexusForever.WorldServer.Game.Entity
         private const double SaveDuration = 60d;
 
         public ulong CharacterId { get; }
-        public string Name { get; }
+        public string Name { get; private set; }
         public Sex Sex { get; private set; }
         public Race Race { get; private set; }
-        public Class Class { get; }
+
+        public Class Class
+        {
+            get { return _class; }
+            set
+            {
+                _class = value;
+                saveMask |= PlayerSaveMask.Class;
+            }
+        }
+        private Class _class;
+
         public Faction Faction { get; }
         public List<float> Bones { get; } = new();
         public WorldZoneEntry PreviousZone { get; private set; }
@@ -576,7 +587,17 @@ namespace NexusForever.WorldServer.Game.Entity
                         characterBone.Save(context);
                     foreach (Customisation characterCustomisation in characterCustomisations.Values)
                         characterCustomisation.Save(context);
-                }   
+                }
+
+                if ((saveMask & PlayerSaveMask.Name) != 0)
+                {
+                    model.Name = Name;
+                }
+
+                if ((saveMask & PlayerSaveMask.Class) != 0)
+                {
+                    model.Class = (byte)Class;
+                }
 
                 saveMask = PlayerSaveMask.None;
             }
@@ -1749,6 +1770,30 @@ namespace NexusForever.WorldServer.Game.Entity
             }
 
             return base.CanSeeEntity(entity);
+        }
+
+        public static bool IsValidNameChange(string name)
+        {
+            if(DatabaseManager.Instance.CharacterDatabase.CharacterNameExists(name))
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public bool ChangeName(string name)
+        {
+            if(Player.IsValidNameChange(name))
+            {
+                Name = name;
+                saveMask |= PlayerSaveMask.Name;
+                Save();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public void SetPvpMode(bool pvpMode)
