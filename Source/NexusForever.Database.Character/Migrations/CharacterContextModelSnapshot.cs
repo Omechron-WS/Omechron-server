@@ -151,15 +151,11 @@ namespace NexusForever.Database.Character.Migrations
             modelBuilder.Entity("NexusForever.Database.Character.Model.CharacterBoneModel", b =>
                 {
                     b.Property<ulong>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint(20) unsigned")
-                        .HasDefaultValue(0ul)
                         .HasColumnName("id");
 
                     b.Property<byte>("BoneIndex")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("tinyint(4) unsigned")
-                        .HasDefaultValue((byte)0)
                         .HasColumnName("boneIndex");
 
                     b.Property<float>("Bone")
