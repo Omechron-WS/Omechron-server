@@ -453,22 +453,29 @@ namespace NexusForever.WorldServer.Game.Housing
         /// <summary>
         /// Returns the <see cref="Vector3"/> location for the house inside
         /// </summary>
-        public Vector3 GetResidenceInsideLocation(uint residenceInfoId, PropertyInfoId propertyInfoId)
+        public Vector3 GetResidenceDoor(uint residenceInfoId, ulong plotInfoId, bool inside)
         {
-            if (residenceTeleportLocation.TryGetValue(residenceInfoId, out Vector3 teleportLocation))
-            {
-                if (propertyInfoId != PropertyInfoId.Residence)
-                {
-                    teleportLocation = teleportLocation + GetResidenceOffset(propertyInfoId) - GetResidenceOffset(PropertyInfoId.Residence);
-                }
-                return teleportLocation;
-            }
-            return Vector3.Zero;
+            HousingResidenceInfoEntry hri = GameTableManager.Instance.HousingResidenceInfo.GetEntry(residenceInfoId);
+            if (hri == null) return Vector3.Zero;
+            WorldLocation2Entry wl = GameTableManager.Instance.WorldLocation2.GetEntry(inside ? hri.WorldLocation2IdInside02 : hri.WorldLocation2IdOutside02);
+            if (wl == null) return Vector3.Zero;
+            WorldEntry world = GameTableManager.Instance.World.GetEntry(wl.WorldId);
+            if (world == null) return Vector3.Zero;
+
+            Vector3 offset = GetResidenceOffset(plotInfoId);
+            return new Vector3(wl.Position0 - (world.ChunkBounds00 * 32), wl.Position1, wl.Position2 - (world.ChunkBounds01 * 32)) + offset;
         }
 
-        public static Vector3 GetResidenceOffset(PropertyInfoId propertyInfo)
+        public static Vector3 GetResidenceOffset(ulong plotInfoId)
         {
-            switch (propertyInfo)
+            HousingPlotInfoEntry hpi = GameTableManager.Instance.HousingPlotInfo.GetEntry(plotInfoId);
+            if (hpi == null) return Vector3.Zero;
+            WorldSocketEntry ws = GameTableManager.Instance.WorldSocket.GetEntry(hpi.WorldSocketId);
+            if (ws == null) return Vector3.Zero;
+
+            return new Vector3(ws.BoundIds[0] * 32, 309, ws.BoundIds[1] * 32);
+
+            /*switch (propertyInfo)
             {
                 case PropertyInfoId.Residence:
                     return new Vector3(1472f - 0.00012207031f, -715f, 1440f);
@@ -484,7 +491,7 @@ namespace NexusForever.WorldServer.Game.Housing
                     return new Vector3(800f, -715f, -256f - 0.000030517578f);
                 case PropertyInfoId.Community:
                     return new Vector3(528f, -715f, -464f);
-            }
+            }*/
             return Vector3.Zero;
         }
 

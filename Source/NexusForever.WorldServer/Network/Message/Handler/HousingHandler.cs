@@ -554,7 +554,54 @@ namespace NexusForever.WorldServer.Network.Message.Handler
 
             session.Player.Dismount(); // All observing clients crash if going in while mounted?
 
-            if (session.Player.HouseOutsideLocation != Vector3.Zero || session.Player.Position.Y < -720f)
+            if (!residence.HasDoor())
+            {
+                session.EnqueueMessageEncrypted(new ServerHousingResult
+                {
+                    RealmId = WorldServer.RealmId,
+                    ResidenceId = enterInside.ResidenceId,
+                    PlayerName = session.Player.Name,
+                    Result = HousingResult.Failed
+                });
+                return;
+            }
+
+            Vector3 insideDoor = residence.GetInsideDoorLocation();
+            Vector3 outsideDoor = residence.GetOutsideDoorLocation();
+
+            
+
+            float insideDistance = Vector3.Distance(session.Player.Position, insideDoor);
+            float outsideDistance = Vector3.Distance(session.Player.Position, outsideDoor);
+
+            Vector3 teleportPosition = outsideDoor;
+            Vector3 teleportRotation = Vector3.Zero;
+
+            if(insideDistance < outsideDistance)
+            {
+                // going to outside door
+                if(session.Player.HouseOutsideLocation != Vector3.Zero)
+                {
+                    teleportPosition = session.Player.HouseOutsideLocation;
+                }
+                else
+                {
+                    teleportPosition = outsideDoor;
+                }
+                teleportRotation = new Vector3(-90f, 0f, 0f);
+            }
+            else
+            {
+                // going to inside door
+                session.Player.HouseOutsideLocation = session.Player.Position;
+                teleportPosition = insideDoor;
+                teleportRotation = new Vector3(90f, 0f, 0f);
+            }
+
+            session.Player.MovementManager.SetRotation(teleportRotation);
+            session.Player.MovementManager.SetPosition(teleportPosition, true, true);
+
+            /*if (session.Player.HouseOutsideLocation != Vector3.Zero || session.Player.Position.Y < -720f)
             {
                 Vector3 location = session.Player.HouseOutsideLocation;
                 session.Player.HouseOutsideLocation = Vector3.Zero;
@@ -571,7 +618,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler
                 return;
             }
 
-            Vector3 teleportPosition = GlobalResidenceManager.Instance.GetResidenceInsideLocation(residence.ResidenceInfoEntry.Id, residence.PropertyInfoId);
+            Vector3 teleportPosition = GlobalResidenceManager.Instance.GetResidenceDoor(residence.ResidenceInfoEntry.Id, residence.PropertyInfoId, true);
             if (teleportPosition != Vector3.Zero)
             {
                 session.Player.HouseOutsideLocation = session.Player.Position;
@@ -579,7 +626,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler
                 session.Player.MovementManager.SetPosition(teleportPosition, true, true);
             }
             else
-                session.Player.SendSystemMessage("Unknown teleport location.");
+                session.Player.SendSystemMessage("Unknown teleport location.");*/
         }
 
         [MessageHandler(GameMessageOpcode.ClientHousingRemodelInterior)]

@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using NexusForever.Database;
 using NexusForever.Database.Character;
 using NexusForever.Database.Character.Model;
+using NexusForever.Shared;
 using NexusForever.Shared.Game;
 using NexusForever.Shared.GameTable;
 using NexusForever.Shared.GameTable.Model;
@@ -35,6 +36,10 @@ namespace NexusForever.WorldServer.Game.Housing
         private bool has18PlusLock = false;
         private DateTime unlockTime18Plus = DateTime.MinValue;
         private bool waitForEmptyPlot18Plus = false;
+
+        private Vector3 outsideDoor = Vector3.Zero;
+        private Vector3 insideDoor = Vector3.Zero;
+        private bool hasDoor = false;
 
         public ulong? GuildOwnerId
         {
@@ -68,6 +73,7 @@ namespace NexusForever.WorldServer.Game.Housing
                     log.Error(ex);
                 }
 
+                UpdateDoors();
             }
         }
         private PropertyInfoId propertyInfoId;
@@ -338,6 +344,8 @@ namespace NexusForever.WorldServer.Game.Housing
                 PropertyInfoId = PropertyInfoId.Residence;
                 GuildOwnerId = null;
             }
+
+            UpdateDoors();
         }
 
         /// <summary>
@@ -359,6 +367,8 @@ namespace NexusForever.WorldServer.Game.Housing
             // TODO: find a better way to do this, this adds the starter tent plug
             plots[0].SetPlug(18);
             plots[0].BuildState = 4;
+
+            UpdateDoors();
         }
 
         /// <summary>
@@ -1021,10 +1031,79 @@ namespace NexusForever.WorldServer.Game.Housing
                 }
 
                 saveMask |= ResidenceSaveMask.PropertyInfo;
+                UpdateDoors();
                 return true;
             }
 
             return false;
+        }
+
+        private ulong? GetHousePlotInfoId()
+        {
+            return GameTableManager.Instance.HousingPlotInfo.Entries.FirstOrDefault(e => e.HousingPropertyInfoId == (ulong) PropertyInfoId)?.Id;
+        }
+
+        public void UpdateDoors()
+        {
+            insideDoor = Vector3.Zero;
+            outsideDoor = Vector3.Zero;
+            hasDoor = false;
+
+            ulong? hpi = GetHousePlotInfoId();
+            if (hpi != null)
+            {
+                insideDoor = GlobalResidenceManager.Instance.GetResidenceDoor(ResidenceInfoEntry?.Id ?? 0u, (ulong) hpi, true);
+                outsideDoor = GlobalResidenceManager.Instance.GetResidenceDoor(ResidenceInfoEntry?.Id ?? 0u, (ulong) hpi, false);
+                if(insideDoor.Y > outsideDoor.Y)
+                {
+                    var door = insideDoor;
+                    insideDoor = outsideDoor;
+                    outsideDoor = door;
+                }
+                if(insideDoor != Vector3.Zero && outsideDoor != Vector3.Zero)
+                {
+                    hasDoor = true;
+                }
+                else
+                {
+                    insideDoor = Vector3.Zero;
+                    outsideDoor = Vector3.Zero;
+                    hasDoor = false;
+                }
+            }
+        }
+
+        public Vector3 GetOutsideDoorLocation()
+        {
+            return outsideDoor;
+        }
+
+        public Vector3 GetInsideDoorLocation()
+        {
+            return insideDoor;
+        }
+
+        public Vector3 GetInteriorTeleportLocation(Vector3 playerPosition)
+        {
+            if(hasDoor)
+            {
+                float insideDist = insideDoor.GetDistance(playerPosition);
+                float outsideDist = outsideDoor.GetDistance(playerPosition);
+                if(insideDist < outsideDist)
+                {
+                    return outsideDoor;
+                }
+                else
+                {
+                    return insideDoor;
+                }
+            }
+            return playerPosition;
+        }
+
+        public bool HasDoor()
+        {
+            return hasDoor;
         }
 
         public void RemoveHouse()
@@ -1034,7 +1113,9 @@ namespace NexusForever.WorldServer.Game.Housing
             Roof = 0;
             Door = 0;
             Entryway = 0;
-            
+
+            UpdateDoors();
+
             saveMask |= ResidenceSaveMask.PropertyInfo;
         }
 
