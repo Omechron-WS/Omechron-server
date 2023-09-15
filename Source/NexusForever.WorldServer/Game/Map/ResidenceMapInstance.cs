@@ -469,7 +469,7 @@ namespace NexusForever.WorldServer.Game.Map
             SendDecorUpdate(decor);
         }
 
-        private void SendDecorUpdate(Decor decor)
+        public void SendDecorUpdate(Decor decor)
         {
             EnqueueToAll(new ServerHousingResidenceDecor
             {

@@ -92,6 +92,24 @@ namespace NexusForever.WorldServer.Command.Handler
 
                 context.SendMessage(sw.ToString());
             }
+
+            [Command(Permission.HouseDecorAdd, "Add decor to housing residence crate optionally specifying quantity.", "paint")]
+            public void HandleHouseDecorPaint(ICommandContext context,
+                [Parameter("Decor ID to paint.")]
+                ulong decorId,
+                [Parameter("Color to paint with.")]
+                ushort color)
+            {
+                Residence res = context.InvokingPlayer?.CurrentResidence;
+                if (res == null) { return; }
+
+                Decor dec = res.GetDecor(decorId);
+                if (dec == null) { return; }
+
+                dec.ColourShiftId = color;
+
+                res.Map?.SendDecorUpdate(dec);
+            }
         }
 
         [Command(Permission.HouseDecorAdd, "Add decor to housing residence crate optionally specifying quantity.", "decoradd")]
