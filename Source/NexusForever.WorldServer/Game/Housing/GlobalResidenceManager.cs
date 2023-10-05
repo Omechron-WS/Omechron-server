@@ -20,6 +20,7 @@ using NexusForever.WorldServer.Game.Map;
 using NexusForever.WorldServer.Network;
 using NexusForever.WorldServer.Network.Message.Model;
 using NLog;
+using static NexusForever.WorldServer.Network.Message.Model.ServerStoreOffers.OfferGroup;
 
 namespace NexusForever.WorldServer.Game.Housing
 {
@@ -73,28 +74,7 @@ namespace NexusForever.WorldServer.Game.Housing
                 { 554, 37 },    // Bird house
                 { 557, 38 }     // Royal Piglet
             };
-        private readonly Dictionary</*residenceInfoId*/uint, Vector3> residenceTeleportLocation = new Dictionary<uint, Vector3>
-            {
-                { 11, new Vector3(1484.125f, -895.60f, 1440.239f) },
-                { 14, new Vector3(1478.511f, -897.57f, 1444.243f) },
-                { 17, new Vector3(1469.454f, -894.02f, 1444.689f) },
-                { 18, new Vector3(1483.797f, -822.27f, 1440.55f) },
-                { 19, new Vector3(1472.78f, -814.75f, 1444.42f) },
-                { 20, new Vector3(1476.702f, -811.31f, 1442.166f) },
-                { 21, new Vector3(1486.109f, -851.82f, 1440.203f) },
-                { 22, new Vector3(1482.395f, -811.40f, 1444.539f) },
-                { 23, new Vector3(1486.433f, -867.77f, 1455.389f) },
-                { 25, new Vector3(1491.635f, -903.55f, 1439.926f) },
-                { 26, new Vector3(1466.468f, -893f, 1457.137f) },
-                { 27, new Vector3(1480.618f, -895.67f, 1425.404f) },
-                { 28, new Vector3(1476.236f, -912.67f, 1442.122f) },
-                { 32, new Vector3(1497.198f, -912.67f, 1452.01f) },
-                { 34, new Vector3(1472f, -903.01f, 1442f) },
-                { 35, new Vector3(1530.391f, -969.07f, 1440.467f) },
-                { 37, new Vector3(1488.702f, -985.76f, 1440.08f) },
-                { 38, new Vector3(1491.635f, -903.55f, 1439.926f) }
-            };
-
+        
         private double timeToSave = SaveDuration;
 
         private GlobalResidenceManager()
@@ -459,40 +439,35 @@ namespace NexusForever.WorldServer.Game.Housing
             if (hri == null) return Vector3.Zero;
             WorldLocation2Entry wl = GameTableManager.Instance.WorldLocation2.GetEntry(inside ? hri.WorldLocation2IdInside02 : hri.WorldLocation2IdOutside02);
             if (wl == null) return Vector3.Zero;
-            WorldEntry world = GameTableManager.Instance.World.GetEntry(wl.WorldId);
-            if (world == null) return Vector3.Zero;
+            WorldEntry plugWorld = GameTableManager.Instance.World.GetEntry(wl.WorldId);
+            if (plugWorld == null) return Vector3.Zero;
 
-            Vector3 offset = GetResidenceOffset(plotInfoId);
-            return new Vector3(wl.Position0 - (world.ChunkBounds00 * 32), wl.Position1, wl.Position2 - (world.ChunkBounds01 * 32)) + offset;
-        }
-
-        public static Vector3 GetResidenceOffset(ulong plotInfoId)
-        {
             HousingPlotInfoEntry hpi = GameTableManager.Instance.HousingPlotInfo.GetEntry(plotInfoId);
             if (hpi == null) return Vector3.Zero;
             WorldSocketEntry ws = GameTableManager.Instance.WorldSocket.GetEntry(hpi.WorldSocketId);
             if (ws == null) return Vector3.Zero;
 
-            return new Vector3(ws.BoundIds[0] * 32, 309, ws.BoundIds[1] * 32);
+            return GetWorldCoordinates(new Vector3(wl.Position0, wl.Position1, wl.Position2), plugWorld, ws);
+        }
 
-            /*switch (propertyInfo)
-            {
-                case PropertyInfoId.Residence:
-                    return new Vector3(1472f - 0.00012207031f, -715f, 1440f);
-                case PropertyInfoId.CommunityResidence1:
-                    return new Vector3(352f, -715, -640f);
-                case PropertyInfoId.CommunityResidence2:
-                    return new Vector3(640f - 0.000061035156f, -715, -640f - 0.000061035156f);
-                case PropertyInfoId.CommunityResidence3:
-                    return new Vector3(224f + 0.000030517578f, -715, -256f);
-                case PropertyInfoId.CommunityResidence4:
-                    return new Vector3(512f, -715, -256f - 0.000030517578f);
-                case PropertyInfoId.CommunityResidence5:
-                    return new Vector3(800f, -715f, -256f - 0.000030517578f);
-                case PropertyInfoId.Community:
-                    return new Vector3(528f, -715f, -464f);
-            }*/
-            return Vector3.Zero;
+        public static Vector3 GetWorldCoordinates(Vector3 local, WorldEntry plugWorld, WorldSocketEntry ws)
+        {
+            return local - GetPlugOffset(plugWorld, ws);
+        }
+
+        public static Vector3 GetPlugOffset(WorldEntry plugWorld, WorldSocketEntry ws)
+        {
+            return GetPlugWorldOffset(plugWorld) - GetWorldsocketLocation(ws);
+        }
+
+        public static Vector3 GetPlugWorldOffset(WorldEntry plugWorld)
+        {
+            return new Vector3(plugWorld.ChunkBounds00 * 32, plugWorld.PlugAverageHeight / 8f, plugWorld.ChunkBounds01 * 32);
+        }
+
+        public static Vector3 GetWorldsocketLocation(WorldSocketEntry ws)
+        {
+            return new Vector3(ws.BoundIds[0] * 32, ws.AverageHeight / 8f, ws.BoundIds[1] * 32);
         }
 
         /// <summary>
