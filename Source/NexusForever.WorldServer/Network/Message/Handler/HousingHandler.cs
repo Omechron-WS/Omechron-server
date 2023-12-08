@@ -19,6 +19,7 @@ using NexusForever.WorldServer.Game.TextFilter.Static;
 using NexusForever.WorldServer.Network.Message.Model;
 using NexusForever.WorldServer.Network.Message.Model.Shared;
 using NLog;
+using NexusForever.WorldServer.Game.Entity;
 
 namespace NexusForever.WorldServer.Network.Message.Handler
 {
@@ -641,14 +642,39 @@ namespace NexusForever.WorldServer.Network.Message.Handler
         [MessageHandler(GameMessageOpcode.ClientHousingAddNeighbor)]
         public static void HandleHousingAddNeighbor(WorldSession session, ClientHousingAddNeighbor addNeighbor)
         {
-            Residence targetResidence = GlobalResidenceManager.Instance.GetResidenceByOwner(addNeighbor.CharacterName);
-            if(targetResidence == null) { return; }
-
-            Residence res = GlobalResidenceManager.Instance.GetResidenceByOwner(session.Player.CharacterId);
-            targetResidence.AddNeighbor(session.Player.CharacterId);
-            if (targetResidence.OwnerId != null)
+            Player player = CharacterManager.Instance.GetPlayer(addNeighbor.CharacterName);
+            if (player != null)
             {
-                res?.AddNeighbor((ulong)targetResidence.OwnerId);
+                Residence res = player.ResidenceManager?.Residence;
+                if (res != null && res.PendingNeighbor == 0)
+                {
+                    res.SetPendingNeighbor(session.Player.CharacterId);
+
+                    ServerHousingNeighborInvite invite = new ServerHousingNeighborInvite();
+                    invite.Sender.RealmId = WorldServer.RealmId;
+                    invite.Sender.CharacterId = session.Player.CharacterId;
+                    invite.SenderName = session.Player.Name;
+                    player.Session.EnqueueMessageEncrypted(invite);
+                }
+            }
+        }
+
+        [MessageHandler(GameMessageOpcode.ClientHousingAcceptNeighbor)]
+        public static void HandleHousingAcceptNeighbor(WorldSession session, ClientHousingAcceptNeighbor acceptNeighbor)
+        {
+            Residence res = session.Player.ResidenceManager?.Residence;
+            if (res != null)
+            {
+                if (res.PendingNeighbor != 0)
+                {
+                    if (acceptNeighbor.Accepted)
+                    {
+                        res.AddNeighbor(res.PendingNeighbor);
+                        Residence res2 = GlobalResidenceManager.Instance.GetResidenceByOwner(res.PendingNeighbor);
+                        res2.AddNeighbor(session.Player.CharacterId);
+                    }
+                    res.ClearPendingNeighbor();
+                }
             }
         }
 
@@ -656,11 +682,15 @@ namespace NexusForever.WorldServer.Network.Message.Handler
         public static void HandleHousingRemoveNeighbor(WorldSession session, ClientHousingRemoveNeighbor removeNeighbor)
         {
             Residence res = GlobalResidenceManager.Instance.GetResidenceByOwner(session.Player.CharacterId);
-            res?.RemoveNeighbor(removeNeighbor.player.CharacterId);
+            res?.RemoveNeighbor(removeNeighbor.Player.CharacterId);
+            Player player = CharacterManager.Instance.GetPlayer(session.Player.CharacterId);
+            player?.SendNeighbors();
 
-            res = GlobalResidenceManager.Instance.GetResidenceByOwner(removeNeighbor.player.CharacterId);
+            res = GlobalResidenceManager.Instance.GetResidenceByOwner(removeNeighbor.Player.CharacterId);
             res?.RemoveNeighbor(session.Player.CharacterId);
             res.SendNeighbors(session.Player);
+            player = CharacterManager.Instance.GetPlayer(removeNeighbor.Player.CharacterId);
+            player?.SendNeighbors();
         }
 
         [MessageHandler(GameMessageOpcode.ClientHousingSetRoommate)]

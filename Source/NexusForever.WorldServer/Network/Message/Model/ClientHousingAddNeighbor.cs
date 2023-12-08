@@ -8,15 +8,13 @@ namespace NexusForever.WorldServer.Network.Message.Model
     [Message(GameMessageOpcode.ClientHousingAddNeighbor)]
     public class ClientHousingAddNeighbor : IReadable
     {
-        public ushort Unknown1;
-        public ulong Unknown2;
-        public string CharacterName;
+        TargetPlayerIdentity Player = new TargetPlayerIdentity(); // Empty if added with menu
+        public string CharacterName; // Probably empty if added with LUA by ID
         public ushort Unknown3;
         
         public void Read(GamePacketReader reader)
         {
-            Unknown1 = reader.ReadUShort(14);
-            Unknown2 = reader.ReadULong(); // possible TargetPlayer? But is 0.
+            Player.Read(reader);
             CharacterName = reader.ReadWideString();
             Unknown3 = reader.ReadUShort(10);
         }

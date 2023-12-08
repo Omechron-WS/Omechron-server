@@ -258,6 +258,7 @@ namespace NexusForever.WorldServer.Game.Housing
         private HousingResidenceInfoEntry residenceInfoEntry;
 
         private Dictionary<ulong, Neighbor> neighbors = new();
+        public ulong PendingNeighbor { get; private set; } = 0;
 
         private ResidenceSaveMask saveMask;
 
@@ -430,12 +431,6 @@ namespace NexusForever.WorldServer.Game.Housing
             neighbor.Permission = NeighborPermission.Neighbor;
             neighbors.Add(id, neighbor);
 
-            Player neighborino = CharacterManager.Instance.GetPlayer(id);
-            if (neighborino != null)
-            {
-                SendNeighbors(neighborino);
-            }
-
             if (OwnerId != null)
             {
                 Player owner = CharacterManager.Instance.GetPlayer((ulong) OwnerId);
@@ -451,6 +446,21 @@ namespace NexusForever.WorldServer.Game.Housing
         public void RemoveNeighbor(ulong id)
         {
             neighbors.Remove(id);
+        }
+
+        public void SetPendingNeighbor(ulong id)
+        {
+            if (PendingNeighbor != 0)
+            {
+                // throw an exception?
+                return;
+            }
+            PendingNeighbor = id;
+        }
+
+        public void ClearPendingNeighbor()
+        {
+            PendingNeighbor = 0;
         }
 
         public void SendNeighbors(Player player)
