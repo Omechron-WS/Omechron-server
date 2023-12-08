@@ -161,7 +161,7 @@ namespace NexusForever.WorldServer.Command.Handler
                 }
             }
 
-            if (residence.OwnerId != context.InvokingPlayer.CharacterId)
+            /*if (residence.OwnerId != context.InvokingPlayer.CharacterId)
             {
                 if (residence.Has18PlusLock())
                 {
@@ -185,6 +185,12 @@ namespace NexusForever.WorldServer.Command.Handler
                     case ResidencePrivacyLevel.RoommatesOnly:
                         break;
                 }
+            }*/
+
+            if (!residence.CheckPlotAccess(context.InvokingPlayer))
+            {
+                context.InvokingPlayer.SendSystemMessage("This plot is currently unavailable.");
+                return;
             }
 
             ResidenceEntrance entrance = GlobalResidenceManager.Instance.GetResidenceEntrance(residence.PropertyInfoId);

@@ -759,6 +759,46 @@ namespace NexusForever.WorldServer.Game.Housing
             }
         }
 
+        public bool CheckPlotAccess(Player player)
+        {
+            if (privacyLevel == ResidencePrivacyLevel.Public) { return CheckNSFWAccess(player); }
+
+            switch(Type)
+            {
+                case ResidenceType.Residence:
+                    if (OwnerId == player.CharacterId) { return true; }
+                    if (CharacterManager.Instance.GetCharacterInfo((ulong)OwnerId)?.AccountId == player.AccountId) { return true; }
+                    break;
+                case ResidenceType.Community:
+                    if (player.GuildManager.GetGuild<Community>(GuildType.Community)?.GetMember(player.CharacterId) != null) { return CheckNSFWAccess(player); }
+                    break;
+            }
+
+            if (privacyLevel == ResidencePrivacyLevel.Private)
+            {
+                return false;
+            }
+
+            Neighbor neighbor = GetNeighbor(player);
+            if (neighbor != null)
+            {
+                if (privacyLevel == ResidencePrivacyLevel.RoommatesOnly)
+                {
+                    return (neighbor.Permission >= NeighborPermission.Roommate) && CheckNSFWAccess(player);
+                }
+                return CheckNSFWAccess(player);
+            }
+
+            return false; // shouldn't reach this, just putting it here to shut up IDE.
+        }
+
+        public bool CheckNSFWAccess(Player player)
+        {
+            if (has18PlusLock) { return player.IsAdult; }
+
+            return true;
+        }
+
         public ServerHousingProperties.Residence Build()
         {
             return new()
