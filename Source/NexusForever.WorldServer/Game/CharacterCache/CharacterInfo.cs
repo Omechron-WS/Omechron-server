@@ -9,6 +9,7 @@ namespace NexusForever.WorldServer.Game.CharacterCache
     public class CharacterInfo : ICharacter
     {
         public ulong CharacterId { get; }
+        public ulong AccountId { get; }
         public string Name { get; }
         public Sex Sex { get; }
         public Race Race { get;}
@@ -22,6 +23,7 @@ namespace NexusForever.WorldServer.Game.CharacterCache
         public CharacterInfo(CharacterModel model)
         {
             CharacterId = model.Id;
+            AccountId   = model.AccountId;
             Name        = model.Name;
             Sex         = (Sex)model.Sex;
             Race        = (Race)model.Race;
@@ -36,6 +38,7 @@ namespace NexusForever.WorldServer.Game.CharacterCache
         public CharacterInfo(ICharacter model)
         {
             CharacterId = model.CharacterId;
+            AccountId   = model.AccountId;
             Name        = model.Name;
             Sex         = model.Sex;
             Race        = model.Race;

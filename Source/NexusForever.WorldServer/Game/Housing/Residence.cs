@@ -895,7 +895,12 @@ namespace NexusForever.WorldServer.Game.Housing
                         }
                     }
 
-                    // TODO: roommates can also update decor
+                    ICharacter ownerChar = CharacterManager.Instance.GetCharacterInfo((ulong)OwnerId);
+                    if (ownerChar.AccountId == player.AccountId)
+                    {
+                        return true;
+                    }
+                    
                     return player.CharacterId == OwnerId;
                 }
                 default:

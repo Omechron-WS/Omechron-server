@@ -51,6 +51,7 @@ namespace NexusForever.WorldServer.Game.Entity
         private const double SaveDuration = 60d;
 
         public ulong CharacterId { get; }
+        public ulong AccountId { get; }
         public string Name { get; private set; }
         public Sex Sex { get; private set; }
         public Race Race { get; private set; }
@@ -279,6 +280,7 @@ namespace NexusForever.WorldServer.Game.Entity
             Session         = session;
 
             CharacterId     = model.Id;
+            AccountId       = model.AccountId;
             Name            = model.Name;
             Sex             = (Sex)model.Sex;
             Race            = (Race)model.Race;
