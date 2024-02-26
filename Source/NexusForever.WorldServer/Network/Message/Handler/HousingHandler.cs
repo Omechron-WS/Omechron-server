@@ -704,7 +704,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler
         {
             Residence res = GlobalResidenceManager.Instance.GetResidenceByOwner(session.Player.CharacterId);
             var nb = res?.GetNeighbor(setRoommate.player.CharacterId);
-            nb.Permission = setRoommate.Permission;
+            nb.AccessLevel = setRoommate.Permission;
             res.SendNeighbors(session.Player);
         }
     }

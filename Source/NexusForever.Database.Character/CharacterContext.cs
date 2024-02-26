@@ -2946,6 +2946,33 @@ namespace NexusForever.Database.Character
                     .HasConstraintName("FK__residence_guildOwnerId__guild_id");
             });
 
+            modelBuilder.Entity<NeighborModel>(entity =>
+            {
+                entity.ToTable("neighbor");
+
+                entity.HasIndex(e => e.Id)
+                    .HasDatabaseName("neighborguid")
+                    .IsUnique();
+
+                entity.HasKey(e => new { e.Id, e.OwningResidenceId, e.NeighborResidenceId })
+                    .HasName("PRIMARY");
+
+                entity.Property(e => e.OwningResidenceId)
+                    .HasColumnName("owningresidenceid")
+                    .HasColumnType("bigint(20) unsigned")
+                    .HasDefaultValue(0);
+
+                entity.Property(e => e.NeighborResidenceId)
+                    .HasColumnName("neighborresidenceid")
+                    .HasColumnType("bigint(20) unsigned")
+                    .HasDefaultValue(0);
+
+                entity.HasOne(d => d.OwningResidence)
+                    .WithMany(p => p.Neighbors)
+                    .HasForeignKey(d => d.OwningResidenceId)
+                    .HasConstraintName("FK__residence_neighbor_id__residence_id");
+            });
+
             modelBuilder.Entity<ResidenceDecor>(entity =>
             {
                 entity.ToTable("residence_decor");

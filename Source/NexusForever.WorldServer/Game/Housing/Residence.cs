@@ -258,6 +258,8 @@ namespace NexusForever.WorldServer.Game.Housing
         private HousingResidenceInfoEntry residenceInfoEntry;
 
         private Dictionary<ulong, Neighbor> neighbors = new();
+
+        private readonly HashSet<Neighbor> deletedNeighbors = new HashSet<Neighbor>();
         public ulong PendingNeighbor { get; private set; } = 0;
 
         private ResidenceSaveMask saveMask;
@@ -346,6 +348,13 @@ namespace NexusForever.WorldServer.Game.Housing
                 GuildOwnerId = null;
             }
 
+            foreach (NeighborModel neighborModel in model.Neighbors)
+            {
+                Neighbor neighbor = new Neighbor(neighborModel.NeighborResidenceId);
+                neighbor.AccessLevel = (NeighborPermission)neighborModel.AccessLevel;
+                neighbors.Add(neighborModel.NeighborResidenceId, neighbor);
+            }
+
             UpdateDoors();
         }
 
@@ -428,7 +437,7 @@ namespace NexusForever.WorldServer.Game.Housing
                 return null; // error
             }
             Neighbor neighbor = new Neighbor(id);
-            neighbor.Permission = NeighborPermission.Neighbor;
+            neighbor.AccessLevel = NeighborPermission.Neighbor;
             neighbors.Add(id, neighbor);
 
             if (OwnerId != null)
@@ -472,10 +481,10 @@ namespace NexusForever.WorldServer.Game.Housing
                 {
                     Character = new TargetPlayerIdentity()
                     {
-                        CharacterId = neighbor.CharacterId,
+                        CharacterId = neighbor.NeighborResidenceId,
                         RealmId = WorldServer.RealmId
                     },
-                    Permission = neighbor.Permission
+                    Permission = neighbor.AccessLevel
                 });
             }
             player.Session.EnqueueMessageEncrypted(shn);
@@ -784,7 +793,7 @@ namespace NexusForever.WorldServer.Game.Housing
             {
                 if (privacyLevel == ResidencePrivacyLevel.RoommatesOnly)
                 {
-                    return (neighbor.Permission >= NeighborPermission.Roommate) && CheckNSFWAccess(player);
+                    return (neighbor.AccessLevel >= NeighborPermission.Roommate) && CheckNSFWAccess(player);
                 }
                 return CheckNSFWAccess(player);
             }
@@ -929,7 +938,7 @@ namespace NexusForever.WorldServer.Game.Housing
                     neighbors.TryGetValue(player.CharacterId, out Neighbor nb);
                     if(nb != null)
                     {
-                        if (nb.Permission == NeighborPermission.Roommate)
+                        if (nb.AccessLevel == NeighborPermission.Roommate)
                         {
                             return true;
                         }
