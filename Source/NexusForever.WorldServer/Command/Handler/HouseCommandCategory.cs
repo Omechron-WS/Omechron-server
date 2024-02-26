@@ -403,7 +403,7 @@ namespace NexusForever.WorldServer.Command.Handler
             }
         }
 
-        [Command(Permission.House, "Set decor entity.", "setentity")]
+        [Command(Permission.GMFlag, "Set decor entity.", "setentity")]
         public void HandleSetEntity(ICommandContext context,
             [Parameter("Decor ID")]
             ulong decorId,
@@ -458,7 +458,7 @@ namespace NexusForever.WorldServer.Command.Handler
             }
         }
 
-        [Command(Permission.House, "Set decor entity.", "setstate")]
+        [Command(Permission.GMFlag, "Set decor entity.", "setstate")]
         public void HandleSetState(ICommandContext context,
             [Parameter("Decor ID")]
             ulong decorId,
@@ -480,7 +480,7 @@ namespace NexusForever.WorldServer.Command.Handler
             }
         }
 
-        [Command(Permission.House, "Elevator test.", "elevatortestmove")]
+        [Command(Permission.GMFlag, "Elevator test.", "elevatortestmove")]
         public void HandleElevatorTestMove(ICommandContext context,
             [Parameter("Decor ID")]
             ulong decorId)
@@ -501,7 +501,7 @@ namespace NexusForever.WorldServer.Command.Handler
         }
 
 
-        /*[Command(Permission.House, "Elevator test.", "elevatortest")]
+        /*[Command(Permission.GMFlag, "Elevator test.", "elevatortest")]
         public void HandleElevatorTest(ICommandContext context,
             [Parameter("Decor ID")]
             ulong decorId)
