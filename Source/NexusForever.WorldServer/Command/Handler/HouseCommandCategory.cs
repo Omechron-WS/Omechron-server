@@ -1,13 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Numerics;
 using System.Text;
 using Newtonsoft.Json.Linq;
 using NexusForever.Shared;
 using NexusForever.Shared.GameTable;
 using NexusForever.Shared.GameTable.Model;
 using NexusForever.WorldServer.Command.Context;
+using NexusForever.WorldServer.Command.Convert;
 using NexusForever.WorldServer.Command.Static;
 using NexusForever.WorldServer.Game;
 using NexusForever.WorldServer.Game.Entity;
+using NexusForever.WorldServer.Game.Entity.Static;
 using NexusForever.WorldServer.Game.Housing;
 using NexusForever.WorldServer.Game.Housing.Static;
 using NexusForever.WorldServer.Game.Map;
@@ -398,5 +402,130 @@ namespace NexusForever.WorldServer.Command.Handler
                 res.SendNeighbors(player);
             }
         }
+
+        [Command(Permission.House, "Set decor entity.", "setentity")]
+        public void HandleSetEntity(ICommandContext context,
+            [Parameter("Decor ID")]
+            ulong decorId,
+            [Parameter("Entity Type", ParameterFlags.None, typeof(EnumParameterConverter<EntityType>))]
+            EntityType entityType,
+            [Parameter("Creature2 ID")]
+            ulong creature2Id)
+        {
+            Player player = context.InvokingPlayer;
+            ResidenceMapInstance map = player?.Map as ResidenceMapInstance;
+            Residence res = map?.GetResidenceByZone(player.Zone.Id);
+            Decor dec = res?.GetDecor(decorId);
+            WorldEntity en = dec?.Entity;
+            if (dec != null)
+            {
+                Vector3 pos = context.InvokingPlayer.Position;
+                if(en != null)
+                {
+                    pos = en.Position;
+
+                    dec.RemoveEntity();
+                }
+
+                WorldEntity pl;
+                ushort plotID = ResidenceMapInstance.GetPlotIdForDecorEntity(dec.Residence, dec.PlotIndex);
+                switch (entityType) {
+                    case EntityType.Platform:
+                        pl = new Platform(GameTableManager.Instance.Creature2.GetEntry(creature2Id), (long)decorId, plotID);
+                        break;
+                    case EntityType.NonPlayer:
+                        pl = new NonPlayer(GameTableManager.Instance.Creature2.GetEntry(creature2Id), (long)decorId, plotID);
+                        break;
+                    case EntityType.Simple:
+                        pl = new Simple(GameTableManager.Instance.Creature2.GetEntry(creature2Id), (long)decorId, plotID);
+                        break;
+                    default:
+                        return;
+                }
+                
+                map.SetDecorEntityProperties(dec, pl, pos, dec.Rotation);
+                pl.InitialiseTemporaryEntity();
+                dec.SetEntity(pl);
+                map.EnqueueAdd(pl, new MapPosition()
+                {
+                    Info = new MapInfo()
+                    {
+                        Entry = map.Entry,
+                        InstanceId = map.InstanceId
+                    },
+                    Position = pos
+                });
+            }
+        }
+
+        [Command(Permission.House, "Set decor entity.", "setstate")]
+        public void HandleSetState(ICommandContext context,
+            [Parameter("Decor ID")]
+            ulong decorId,
+            [Parameter("StandState", ParameterFlags.None, typeof(EnumParameterConverter<StandState>))]
+            StandState state)
+        {
+            Player player = context.InvokingPlayer;
+            ResidenceMapInstance map = player?.Map as ResidenceMapInstance;
+            Residence res = map?.GetResidenceByZone(player.Zone.Id);
+            Decor dec = res?.GetDecor(decorId);
+            WorldEntity en = dec?.Entity;
+            if (en != null)
+            {
+                en.StandState = state;
+            }
+            else
+            {
+                context.SendError("No such decor or entity!");
+            }
+        }
+
+        [Command(Permission.House, "Elevator test.", "elevatortestmove")]
+        public void HandleElevatorTestMove(ICommandContext context,
+            [Parameter("Decor ID")]
+            ulong decorId)
+        {
+            Player player = context.InvokingPlayer;
+            ResidenceMapInstance map = player?.Map as ResidenceMapInstance;
+            Residence res = map?.GetResidenceByZone(player.Zone.Id);
+            Decor dec = res.GetDecor(decorId);
+            WorldEntity en = dec.Entity;
+            if (dec != null && en != null)
+            {
+                List<Vector3> nodes = new();
+                nodes.Add(en.Position);
+                nodes.Add(en.Position + Vector3.UnitY * 20);
+
+                dec.Entity.MovementManager.LaunchSpline(nodes, Game.Entity.Movement.Spline.Static.SplineType.Linear, Game.Entity.Movement.Spline.Static.SplineMode.BackAndForth, 1);
+            }
+        }
+
+
+        /*[Command(Permission.House, "Elevator test.", "elevatortest")]
+        public void HandleElevatorTest(ICommandContext context,
+            [Parameter("Decor ID")]
+            ulong decorId)
+        {
+            Player player = context.InvokingPlayer;
+            ResidenceMapInstance map = player?.Map as ResidenceMapInstance;
+            Residence res = map?.GetResidenceByZone(player.Zone.Id);
+            Decor dec = res.GetDecor(decorId);
+            if (dec != null)
+            {
+                NonPlayer pl = new NonPlayer(GameTableManager.Instance.Creature2.GetEntry(1581), (long)decorId, (byte)dec.PlotIndex);
+                //Platform pl = new Platform(GameTableManager.Instance.Creature2.GetEntry(9501), (long)decorId, (byte)dec.PlotIndex);
+                map.SetDecorEntityProperties(dec, pl, dec.Position, dec.Rotation);
+                pl.InitialiseTemporaryEntity();
+                map.AddVisibleEntity(pl);
+
+                List<Vector3> nodes = new();
+                nodes.Add(dec.Position);
+                nodes.Add(dec.Position + Vector3.UnitY * 5);
+                pl.MovementManager.LaunchSpline(nodes, Game.Entity.Movement.Spline.Static.SplineType.Linear, Game.Entity.Movement.Spline.Static.SplineMode.BackAndForth, 1);
+
+                dec.RemoveEntity();
+                dec.SetEntity(pl);
+            }
+        }*/
     }
 }

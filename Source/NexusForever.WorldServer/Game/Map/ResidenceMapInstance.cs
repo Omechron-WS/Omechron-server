@@ -5,7 +5,6 @@ using System.Numerics;
 using NexusForever.Shared;
 using NexusForever.Shared.GameTable;
 using NexusForever.Shared.GameTable.Model;
-using NexusForever.Shared.GameTable.Static;
 using NexusForever.Shared.Network;
 using NexusForever.WorldServer.Game.Entity;
 using NexusForever.WorldServer.Game.Entity.Static;
@@ -950,7 +949,7 @@ namespace NexusForever.WorldServer.Game.Map
             }
         }
 
-        private ushort GetPlotIdForDecorEntity(Residence residence, uint plotIndex)
+        public static ushort GetPlotIdForDecorEntity(Residence residence, uint plotIndex)
         {
             Dictionary<PropertyInfoId, ushort> plotIdLookup = new Dictionary<PropertyInfoId, ushort> // ugliest hack. You need the root plot ID, not the actual decor plot ID.
             {
@@ -975,7 +974,7 @@ namespace NexusForever.WorldServer.Game.Map
             return (ushort)entry.WorldSocketId;*/
         }
 
-        private WorldEntity SetDecorEntityProperties(Decor decor, WorldEntity entity, Vector3 position, Quaternion rotation)
+        public WorldEntity SetDecorEntityProperties(Decor decor, WorldEntity entity, Vector3 position, Quaternion rotation)
         {
             entity.Rotation = rotation.ToEulerRadians();
             entity.SetPosition(position);
