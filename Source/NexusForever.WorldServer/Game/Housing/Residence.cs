@@ -1010,9 +1010,9 @@ namespace NexusForever.WorldServer.Game.Housing
         /// <summary>
         /// Return <see cref="Decor"/> with the supplied id.
         /// </summary>
-        public Decor GetInteriorDecor(uint hookIndex)
+        public Decor GetInteriorDecor(uint hookIndex, uint hookBagIndex)
         {
-            Decor decor = decors.Values.Where(i => i.Type == DecorType.InteriorDecoration).SingleOrDefault(x => x.HookIndex == hookIndex);
+            Decor decor = decors.Values.Where(i => i.Type == DecorType.InteriorDecoration).SingleOrDefault(x => x.HookIndex == hookIndex && x.HookBagIndex == hookBagIndex && !x.PendingDelete);
             return decor;
         }
 

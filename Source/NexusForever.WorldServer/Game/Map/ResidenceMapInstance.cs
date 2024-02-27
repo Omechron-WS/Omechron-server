@@ -383,15 +383,14 @@ namespace NexusForever.WorldServer.Game.Map
                 || !residence.CanModifyResidence(player))
                     continue;
                     
-                Decor decor = residence.GetInteriorDecor(update.HookIndex);
-                if (decor != null && update.DecorInfoId == 0u)
-                {
-                    DecorDelete(residence, update);
-                    continue;
-                }
+                Decor decor = residence.GetInteriorDecor(update.HookIndex, update.HookBagIndex);
 
-                if (decor != null && update.DecorInfoId != decor.DecorInfoId)
-                    DecorDelete(residence, update);
+                if (decor != null)
+                {
+                    if (update.DecorInfoId == decor.DecorInfoId && update.DecorInfoId != 0) // no change needed?
+                        continue;
+                    DecorDelete(residence, decor);
+                }
 
                 if (update.DecorInfoId == 0u)
                     continue;
