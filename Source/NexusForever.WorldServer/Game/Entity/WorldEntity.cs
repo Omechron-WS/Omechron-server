@@ -235,7 +235,7 @@ namespace NexusForever.WorldServer.Game.Entity
         /// <summary>
         /// Guid of the <see cref="Player"/> currently controlling this <see cref="WorldEntity"/>.
         /// </summary>
-        public uint ControllerGuid { get; set; }
+        public uint? ControllerGuid { get; set; }
 
         /// <summary>
         /// This is for scripts (or database entities) to use to replace the default activation spell ID.

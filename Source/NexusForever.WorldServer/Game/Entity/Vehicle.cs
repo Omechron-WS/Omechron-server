@@ -154,7 +154,7 @@ namespace NexusForever.WorldServer.Game.Entity
 
             // TODO: research this...
             // Kirmmin: This is used on both mounting up and dismounting
-            player.Session.EnqueueMessageEncrypted(new Server0639
+            player.Session.EnqueueMessageEncrypted(new ServerMovementControlRemove
             {
             });
 

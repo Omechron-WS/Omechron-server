@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Microsoft.Extensions.Logging;
 using NexusForever.Shared;
 using NexusForever.Shared.Game;
 using NexusForever.Shared.GameTable;
@@ -55,6 +56,8 @@ namespace NexusForever.WorldServer.Game.Entity.Movement
         }
         private bool _isMoving;
         public bool IsMoving() => isMoving;
+
+        protected float scale = 1.0f;
 
         private bool isDirty;
         private bool hasTicket = false;
@@ -127,6 +130,39 @@ namespace NexusForever.WorldServer.Game.Entity.Movement
                     // update grid position with the interpolated position on the spline
                     owner.Relocate(splinePath.GetPosition());
                     splineGridUpdateTimer.Reset();
+                }
+            }
+        }
+
+        public void SetScale(float scale)
+        {
+            this.scale = scale;
+            Player p = owner as Player;
+            uint? currentControl = 0;
+            if (p != null)
+            {
+                currentControl = p.ControlGuid;
+                p.SetControl(null);
+            }
+            //(owner as Player).Session.EnqueueMessageEncrypted(new Server0639());
+            //hasTicket = true;
+            AddCommand(new SetScaleCommand
+            {
+                Blend = true,
+                Scale = (Half) scale,
+            }, true);
+            /*(owner as Player).Session.EnqueueMessageEncrypted(new ServerMovementControl
+            {
+                Ticket = 22,
+                Immediate = true,
+                UnitId = owner.Guid
+            });*/
+            BroadcastCommands();
+            if (p != null)
+            {
+                if(currentControl.HasValue)
+                {
+                    p.SetControl(p.GetVisible<WorldEntity>(currentControl.Value));
                 }
             }
         }
@@ -394,7 +430,7 @@ namespace NexusForever.WorldServer.Game.Entity.Movement
 
             bool isPlayer = owner is Player;
             if (isPlayer && hasTicket)
-                (owner as Player).Session.EnqueueMessageEncrypted(new Server0639());
+                (owner as Player).Session.EnqueueMessageEncrypted(new ServerMovementControlRemove());
 
             var serverEntityCommand = new ServerEntityCommand
             {
@@ -413,7 +449,7 @@ namespace NexusForever.WorldServer.Game.Entity.Movement
             if (isPlayer && hasTicket)
                 (owner as Player).Session.EnqueueMessageEncrypted(new ServerMovementControl
                 {
-                    Ticket    = 2,
+                    Ticket    = 1,
                     Immediate = true,
                     UnitId    = owner.Guid
                 });
@@ -595,7 +631,7 @@ namespace NexusForever.WorldServer.Game.Entity.Movement
                             break;
                         }
 
-                        UnitEntity controlEntity = owner.GetVisible<UnitEntity>(owner.ControllerGuid);
+                        UnitEntity controlEntity = owner.GetVisible<UnitEntity>(owner.ControllerGuid.Value);
                         if (controlEntity is null || controlEntity is not Player)
                             break;
 

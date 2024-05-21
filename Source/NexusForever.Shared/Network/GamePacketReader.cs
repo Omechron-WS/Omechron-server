@@ -103,6 +103,15 @@ namespace NexusForever.Shared.Network
             return (int)ReadBits(bits);
         }
 
+        public Half ReadHalf(uint bits = 16u)
+        {
+            if (bits > 16)
+                throw new ArgumentException();
+
+            short value = (short)ReadBits(bits);
+            return BitConverter.Int16BitsToHalf(value);
+        }
+
         public float ReadSingle(uint bits = 32u)
         {
             if (bits > sizeof(float) * 8)

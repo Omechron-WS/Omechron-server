@@ -143,7 +143,7 @@ namespace NexusForever.WorldServer.Game.Entity
         /// <summary>
         /// Guid of the <see cref="WorldEntity"/> that currently being controlled by the <see cref="Player"/>.
         /// </summary>
-        public uint ControlGuid { get; private set; }
+        public uint? ControlGuid { get; private set; }
 
         /// <summary>
         /// Guid of the <see cref="Vehicle"/> the <see cref="Player"/> is a passenger on.
@@ -943,19 +943,32 @@ namespace NexusForever.WorldServer.Game.Entity
         }
 
         /// <summary>
-        /// Set the <see cref="WorldEntity"/> that currently being controlled by the <see cref="Player"/>.
+        /// Set the <see cref="IWorldEntity"/> that currently being controlled by the <see cref="IPlayer"/>.
         /// </summary>
         public void SetControl(WorldEntity entity)
         {
-            ControlGuid = entity.Guid;
-            entity.ControllerGuid = Guid;
-
-            Session.EnqueueMessageEncrypted(new ServerMovementControl
+            if (ControlGuid != null)
             {
-                Ticket    = 1,
-                Immediate = true,
-                UnitId    = entity.Guid
-            });
+                WorldEntity control = Map.GetEntity<WorldEntity>(ControlGuid.Value);
+                if (control != null)
+                    control.ControllerGuid = null;
+            }
+
+            ControlGuid = entity?.Guid;
+
+            if (ControlGuid != null)
+            {
+                entity.ControllerGuid = ControlGuid;
+
+                Session.EnqueueMessageEncrypted(new ServerMovementControl
+                {
+                    Ticket = 1,
+                    Immediate = false,
+                    UnitId = ControlGuid.Value
+                });
+            }
+            else
+                Session.EnqueueMessageEncrypted(new ServerMovementControlRemove());
         }
 
         /// <summary>
@@ -1607,7 +1620,7 @@ namespace NexusForever.WorldServer.Game.Entity
         /// </summary>
         public void DoResurrect(RezType rezType)
         {
-            WorldEntity controlEntity = GetVisible<WorldEntity>(ControlGuid);
+            WorldEntity controlEntity = GetVisible<WorldEntity>(ControlGuid.Value);
             if (controlEntity is not Ghost ghost)
                 throw new InvalidOperationException($"Control Entity is not of type Ghost");
 

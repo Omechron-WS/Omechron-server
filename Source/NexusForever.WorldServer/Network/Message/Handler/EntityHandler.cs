@@ -29,7 +29,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler
                 return;
 
             if (session.Player.ControlGuid != session.Player.Guid)
-                mover = session.Player.GetVisible<WorldEntity>(session.Player.ControlGuid);
+                mover = session.Player.GetVisible<WorldEntity>(session.Player.ControlGuid.Value);
 
             if (mover == null)
                 return;

@@ -34,6 +34,13 @@ namespace NexusForever.WorldServer.Game.Entity
         public ThreatManager ThreatManager { get; private set; }
         protected uint currentTargetUnitId;
 
+        public float Scale
+        {
+            get { return scale; }
+            set { scale = value; MovementManager.SetScale(value); }
+        }
+        protected float scale = 1.0f;
+
         public bool InCombat
         {
             get => combatState == CombatState.Free ? false : true;

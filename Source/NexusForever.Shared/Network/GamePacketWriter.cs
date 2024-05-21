@@ -79,6 +79,14 @@ namespace NexusForever.Shared.Network
             WriteBits((uint)value, bits);
         }
 
+        public void Write(Half value, uint bits = 16)
+        {
+            if (bits > 16)
+                throw new ArgumentException();
+
+            WriteBits((uint)BitConverter.HalfToInt16Bits(value), bits);
+        }
+
         public void Write(float value, uint bits = 32)
         {
             if (bits > sizeof(float) * 8)

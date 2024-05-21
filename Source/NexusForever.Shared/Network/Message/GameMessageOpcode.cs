@@ -305,7 +305,7 @@ namespace NexusForever.Shared.Network.Message
         ServerMovementControl           = 0x0636, // handler sends 0x0635 and 0x063A
         ClientEntityCommand             = 0x0637, // bidirectional? packet has both read and write handlers 
         ServerEntityCommand             = 0x0638, // bidirectional? packet has both read and write handlers
-        Server0639                      = 0x0639, // mount up or something
+        ServerMoveemntControlRemove                      = 0x0639, // mount up or something
         ClientZoneChange                = 0x063A,
         ClientMovementSpeedUpdate       = 0x063B,
         ServerAuthDenied                = 0x063D,
