@@ -81,7 +81,8 @@ namespace NexusForever.WorldServer.Game.Entity.Movement
             EntityCommand.SetMove,
             EntityCommand.SetRotation,
             EntityCommand.SetState,
-            EntityCommand.SetMode
+            EntityCommand.SetMode,
+            EntityCommand.SetScale
         };
 
         /// <summary>
@@ -815,6 +816,9 @@ namespace NexusForever.WorldServer.Game.Entity.Movement
 
                 if (commandModel is SetRotationCommand)
                     (commandModel as SetRotationCommand).Blend = false;
+
+                if (commandModel is SetScaleCommand)
+                    (commandModel as SetScaleCommand).Scale = (Half) scale;
 
                 initialCommandsToSend.Add((command, commandModel));
             }
