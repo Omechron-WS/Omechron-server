@@ -71,9 +71,7 @@ namespace NexusForever.WorldServer.Command.Handler
                 return;
             }
 
-            var rotation = new Quaternion(entry.Facing0, entry.Facing1, entry.Facing2, entry.Facing3);
-            target.Rotation = rotation.ToEulerRadians();
-            target.TeleportTo((ushort)entry.WorldId, entry.Position0, entry.Position1, entry.Position2);
+            target.TeleportTo(entry);
         }
 
         public static void teleportByName(ICommandContext context, string name)

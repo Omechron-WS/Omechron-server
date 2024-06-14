@@ -9,6 +9,7 @@ using NexusForever.WorldServer.Command.Shared;
 using NexusForever.WorldServer.Game.Combat;
 using NexusForever.WorldServer.Game.Entity;
 using NexusForever.WorldServer.Game.Entity.Static;
+using NexusForever.WorldServer.Game.Map.Search;
 using NexusForever.WorldServer.Game.RBAC.Static;
 using NexusForever.WorldServer.Game.Reputation;
 using NexusForever.WorldServer.Game.Reputation.Static;
@@ -180,6 +181,27 @@ namespace NexusForever.WorldServer.Command.Handler
                 }
 
                 unit.ThreatManager.RemoveTarget((uint)unitId);
+            }
+
+
+
+            [Command(Permission.None, "Find nearby entities.", "near")]
+            public void HandleEntityNear(ICommandContext context,
+                [Parameter("Search range.")]
+                float? range
+                )
+            {
+                Player p = context.InvokingPlayer;
+
+                p.Map.Search(p.Position, range ?? 10, new SearchCheckRange(p.Position, range ?? 10, p), out var entities);
+
+                string msg = $"Entities in range {range ?? 10}:";
+                foreach (var entity in entities)
+                {
+                    msg += $"\nCreature2ID {(entity as UnitEntity)?.CreatureId ?? 0}, position {entity.Position.X}, {entity.Position.Y}, {entity.Position.Z}";
+                }
+
+                context.SendMessage(msg);
             }
         }
     }

@@ -40,6 +40,7 @@ using NexusForever.WorldServer.Network;
 using NexusForever.WorldServer.Network.Message.Model;
 using NexusForever.WorldServer.Network.Message.Model.Shared;
 using NLog;
+using NLog.Targets;
 
 namespace NexusForever.WorldServer.Game.Entity
 {
@@ -1076,6 +1077,13 @@ namespace NexusForever.WorldServer.Game.Entity
                 throw new ArgumentException($"{worldId} is not a valid world id!");
 
             TeleportTo(entry, new Vector3(x, y, z), instanceId, reason);
+        }
+
+        public void TeleportTo(WorldLocation2Entry entry)
+        {
+            var rotation = new Quaternion(entry.Facing0, entry.Facing1, entry.Facing2, entry.Facing3);
+            Rotation = rotation.ToEulerRadians();
+            TeleportTo((ushort)entry.WorldId, entry.Position0, entry.Position1, entry.Position2);
         }
 
         /// <summary>
