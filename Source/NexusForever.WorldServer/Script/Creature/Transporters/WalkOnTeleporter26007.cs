@@ -15,12 +15,12 @@ namespace NexusForever.WorldServer.Script.Creature.Transporters
         {
             get
             {
-                return [
+                return new (ulong, ulong)[] {
                 (19318, 19319),
                 (19323, 19321),
                 (19333, 19335),
                 (19931, 19933),
-            ];
+                };
             }
         }
     }
