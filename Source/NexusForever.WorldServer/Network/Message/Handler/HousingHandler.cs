@@ -608,6 +608,8 @@ namespace NexusForever.WorldServer.Network.Message.Handler
             session.Player.MovementManager.SetRotation(teleportRotation);
             session.Player.MovementManager.SetPosition(teleportPosition, true, true);
 
+            session.Player.SetHousingTeleportCooldown();
+
             /*if (session.Player.HouseOutsideLocation != Vector3.Zero || session.Player.Position.Y < -720f)
             {
                 Vector3 location = session.Player.HouseOutsideLocation;

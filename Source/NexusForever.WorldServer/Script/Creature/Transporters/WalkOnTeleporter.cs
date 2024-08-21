@@ -60,6 +60,7 @@ namespace NexusForever.WorldServer.Script.Creature.Transporters
                 return;
 
             player.TeleportTo(GetTeleportLocation(player.Position, pairs));
+            player.SetHousingTeleportCooldown();
 
         }
     }

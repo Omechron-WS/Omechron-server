@@ -240,7 +240,7 @@ namespace NexusForever.WorldServer.Game.Entity
         /// <summary>
         /// Returns if <see cref="Player"/> can teleport.
         /// </summary>
-        public bool CanTeleport() => pendingTeleport == null;
+        public bool CanTeleport() => pendingTeleport == null && housingMapTeleport.HasElapsed;
         private PendingTeleport pendingTeleport;
         
         public uint HousePreviousWorld { get; set; }
@@ -250,12 +250,15 @@ namespace NexusForever.WorldServer.Game.Entity
             set
             {
                 houseOutsideLocation = value;
-                housingMapTeleport.Reset(true);
             }
         }
         private Vector3 houseOutsideLocation = Vector3.Zero;
-        private UpdateTimer housingMapTeleport = new UpdateTimer(0.5d);
+        public UpdateTimer housingMapTeleport = new UpdateTimer(0.5d);
         public bool CanUseHousingDoors() => housingMapTeleport.HasElapsed;
+        public void SetHousingTeleportCooldown()
+        {
+            housingMapTeleport.Reset();
+        }
 
         /// <summary>
         /// Character Customisation models. Stored for modification purposes.
