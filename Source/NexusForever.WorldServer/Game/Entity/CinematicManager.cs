@@ -13,6 +13,7 @@ namespace NexusForever.WorldServer.Game.Entity
 
         private Player Owner;
         private List<CinematicBase> QueuedCinematics = new List<CinematicBase>();
+        public bool PlayingCinematic { get; private set; }
 
         /// <summary>
         /// Initialise a <see cref="CinematicManager"/> for this <see cref="Player"/>.
@@ -37,8 +38,12 @@ namespace NexusForever.WorldServer.Game.Entity
         /// </summary>
         public void PlayQueuedCinematics()
         {
+            PlayingCinematic = true;
             if (QueuedCinematics.Count == 0)
+            {
+                PlayingCinematic = false;
                 return;
+            }
 
             QueuedCinematics[0].StartPlayback();
             QueuedCinematics.RemoveAt(0);

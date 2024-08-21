@@ -240,7 +240,7 @@ namespace NexusForever.WorldServer.Game.Entity
         /// <summary>
         /// Returns if <see cref="Player"/> can teleport.
         /// </summary>
-        public bool CanTeleport() => pendingTeleport == null && housingMapTeleport.HasElapsed && !IsLoading;
+        public bool CanTeleport() => pendingTeleport == null && housingMapTeleport.HasElapsed && !IsLoading && !CinematicManager.PlayingCinematic;
         private PendingTeleport pendingTeleport;
         
         public uint HousePreviousWorld { get; set; }
