@@ -253,7 +253,7 @@ namespace NexusForever.WorldServer.Game.Entity
             }
         }
         private Vector3 houseOutsideLocation = Vector3.Zero;
-        public UpdateTimer housingMapTeleport = new UpdateTimer(0.5d);
+        public UpdateTimer housingMapTeleport = new UpdateTimer(2.5d);
         public bool CanUseHousingDoors() => housingMapTeleport.HasElapsed;
         public void SetHousingTeleportCooldown()
         {
