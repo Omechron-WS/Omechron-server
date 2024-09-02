@@ -191,7 +191,25 @@ namespace NexusForever.WorldServer.Game.Quest
         /// </summary>
         public bool IsComplete()
         {
-            return progress >= GetMaxValue();
+            if(IsChecklist())
+            {
+                return CountBits(progress) >= GetMaxValue();
+            }
+            else
+            {
+                return progress >= GetMaxValue();
+            }
+        }
+
+        public static int CountBits(uint value)
+        {
+            int count = 0;
+            while (value != 0)
+            {
+                count++;
+                value &= value - 1;
+            }
+            return count;
         }
 
         /// <summary>
@@ -205,7 +223,7 @@ namespace NexusForever.WorldServer.Game.Quest
         private uint GetMaxValue()
         {
             if (IsChecklist())
-                return (uint)(1 << (int)ObjectiveInfo.Entry.Count) - 1;
+                return ObjectiveInfo.Entry.Count;
 
             if (IsDynamic())
                 return 1000u;
@@ -219,11 +237,20 @@ namespace NexusForever.WorldServer.Game.Quest
         public void ObjectiveUpdate(uint update)
         {
             if (IsChecklist())
+            {
                 update = (uint)(1 << (int)update);
+                uint mv = GetMaxValue();
+                Progress = (Progress | update);// & GetMaxValue();
+            }
             else if (IsDynamic())
+            {
                 update = (uint)(((float)update / ObjectiveInfo.Entry.Count) * 1000f);
-
-            Progress = Math.Min(progress + update, GetMaxValue());
+                Progress = Math.Min(progress + update, GetMaxValue());
+            }
+            else
+            {
+                progress += update;
+            }
         }
 
         /// <summary>
