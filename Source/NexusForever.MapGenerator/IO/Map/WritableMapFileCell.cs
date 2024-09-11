@@ -35,7 +35,7 @@ namespace NexusForever.MapGenerator.IO.Map
                 worldZoneBounds = new byte[64, 64];
                 for (int y = 0; y < 64; y++)
                     for (int x = 0; x < 64; x++)
-                        worldZoneBounds[x, y] = cell.WorldZoneBounds[x, y];
+                        worldZoneBounds[x, y] = (byte)cell.WorldZoneBounds[x, y];
 
                 flags |= Flags.ZoneBound;
             }

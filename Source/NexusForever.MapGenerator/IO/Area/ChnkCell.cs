@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using NexusForever.Shared.IO;
 
@@ -48,8 +49,9 @@ namespace NexusForever.MapGenerator.IO.Area
         public ChnkCellFlags Flags { get; private set; }
 
         public uint[] WorldZoneIds { get; } = new uint[4];
-        public byte[,] WorldZoneBounds { get; } = new byte[64, 64];
+        public ZoneBoundFlags[,] WorldZoneBounds { get; } = new ZoneBoundFlags[64, 64];
         public ushort[,] Heightmap { get; } = new ushort[19, 19];
+        public uint[] WorldLayers { get; private set; } = new uint[4];
 
         public HashSet<IReadable> Chunks { get; } = new();
 
@@ -71,30 +73,98 @@ namespace NexusForever.MapGenerator.IO.Area
 
                 switch (flag)
                 {
-                    case ChnkCellFlags.Zone:
-                    {
-                        for (int j = 0; j < 4; j++)
-                            WorldZoneIds[j] = reader.ReadUInt32();
-                        break;
-                    }
                     case ChnkCellFlags.HeightMap:
-                    {
-                        for (int y = 0; y < 19; y++)
-                            for (int x = 0; x < 19; x++)
-                                Heightmap[x, y] = reader.ReadUInt16();
-                        break;
-                    }
+                        {
+                            for (int y = 0; y < 19; y++)
+                                for (int x = 0; x < 19; x++)
+                                    Heightmap[x, y] = reader.ReadUInt16();
+                            break;
+                        }
+                    case ChnkCellFlags.WorldLayers:
+                        {
+                            for(int l = 0; l < 4; l++)
+                            {
+                                WorldLayers[i] = reader.ReadUInt32();
+                            }
+                            break;
+                        }
+                    case ChnkCellFlags.Unk7:
+                        {
+                            byte[] data = reader.ReadBytes(dataSize[i]); // unknown, 16 bytes, possibly a matrix?
+                            break;
+                        }
+                    case ChnkCellFlags.Unk13:
+                        {
+                            ushort[,,] data = new ushort[17, 17, 8];
+                            for (int y = 0; y < 17; y++)
+                            {
+                                for(int x = 0; x < 17; x++)
+                                {
+                                    for (int l = 0; l < 8; l++)
+                                    {
+                                        data[x, y, l] = reader.ReadUInt16();
+                                    }
+                                }
+                            }
+                            break;
+                        }
                     case ChnkCellFlags.ZoneBound:
-                    {
+                        {
                         for (int y = 0; y < 64; y++)
                             for (int x = 0; x < 64; x++)
-                                WorldZoneBounds[x, y] = reader.ReadByte();
+                                WorldZoneBounds[x, y] = (ZoneBoundFlags)reader.ReadByte();
                         break;
-                    }
+                        }
+                    case ChnkCellFlags.Unk26:
+                        {
+                            byte[,,] data = new byte[73, 73, 4];
+                            for (int y = 0; y < 73; y++)
+                            {
+                                for (int x = 0; x < 73; x++)
+                                {
+                                    for (int l = 0; l < 4; l++)
+                                    {
+                                        data[x, y, l] = reader.ReadByte();
+                                        // Each value is highly correlated.
+                                        // First 0, 2 or 3 values are usually non-zero.
+                                    }
+                                }
+                            }
+                            break;
+                        }
+                    case ChnkCellFlags.Unk27:
+                        {
+                            byte[,] data = new byte[64, 64];
+                            for (int y = 0; y < 64; y++)
+                            {
+                                for (int x = 0; x < 64; x++)
+                                {
+                                    // Often 0, 4, 16 or 20. Flags?
+                                    // 4 or 16 often correlate to road march, but not always. 64 and 128 show up, too.
+                                    data[x, y] = reader.ReadByte();
+                                }
+                            }
+                            break;
+                        }
+                    case ChnkCellFlags.Zone:
+                        {
+                            for (int j = 0; j < 4; j++)
+                                WorldZoneIds[j] = reader.ReadUInt32();
+                            break;
+                        }
                     // unhandled flag, skip data
                     default:
-                        reader.ReadBytes(dataSize[i]);
-                        break;
+                        {
+                            int z = dataSize[i];
+                            uint f = (uint)flag;
+                            uint f2 = (uint)ChnkCellFlags.Unk13;
+                            byte[] data = reader.ReadBytes(dataSize[i]);
+                            if(i != 6 && i != 17 && i != 18 && i != 21 && i != 27)
+                            {
+                                int a = i;
+                            }
+                            break;
+                        }
                 }
             }
 
