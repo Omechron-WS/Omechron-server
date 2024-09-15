@@ -123,7 +123,7 @@ namespace NexusForever.WorldServer.Game.Entity
             for (int i = 0; i < costumeSave.Items.Count; i++)
             {
                 items[i].ItemId  = costumeSave.Items[i].ItemId;
-                items[i].DyeData = CostumeItem.GenerateDyeMask(costumeSave.Items[i].Dyes);
+                items[i].SetDyes(costumeSave.Items[i].Dyes);
             }
         }
 

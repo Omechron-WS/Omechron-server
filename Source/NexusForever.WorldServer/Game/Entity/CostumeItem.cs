@@ -15,7 +15,7 @@ namespace NexusForever.WorldServer.Game.Entity
         /// <summary>
         /// Return dye ramp mask generated from supplied dyes.
         /// </summary>
-        public static int GenerateDyeMask(uint[] dyes)
+        private void GenerateDyeMask(uint[] dyes)
         {
             int[] ramps = new int[MaxCostumeItemDyes];
             for (var i = 0; i < dyes.Length; i++)
@@ -27,7 +27,48 @@ namespace NexusForever.WorldServer.Game.Entity
                 ramps[i] = (int)entry.RampIndex;
             }
 
-            return (int)((ramps[2] & 0x3FF | 0xFFFFF800) << 20) | ((ramps[1] & 0x3FF) << 10) | (ramps[0] & 0x3FF);
+            DyeData = (int)((ramps[2] & 0x3FF | 0xFFFFF800) << 20) | ((ramps[1] & 0x3FF) << 10) | (ramps[0] & 0x3FF);
+        }
+
+        private void UpdateVisibleDyeData()
+        {
+            ItemColorSetEntry colorSet = null;
+            if (Entry != null)
+            {
+                ItemDisplayEntry itemDisplay = GameTableManager.Instance.ItemDisplay.GetEntry(Entry.ItemDisplayId);
+                uint colorSetId = itemDisplay?.ItemColorSetId ?? 0u;
+                if (Entry.ItemColorSetId != 0)
+                    colorSetId = Entry.ItemColorSetId;
+
+                if (colorSetId != 0)
+                {
+                    colorSet = GameTableManager.Instance.ItemColorSet.GetEntry(colorSetId);
+                }
+            }
+            VisibleDyeData = DyeData;
+            if(colorSet == null)
+            {
+                return;
+            }
+
+            for(int i = 0; i < MaxCostumeItemDyes; ++i)
+            {
+                if ((VisibleDyeData & (0x3FF << (10 * i))) == 0)
+                {
+                    // Default dye
+                    uint dye = 0;
+
+                    switch (i)
+                    {
+                        case 0: dye = colorSet.DyeColorRampId00; break;
+                        case 1: dye = colorSet.DyeColorRampId01; break;
+                        case 2: dye = colorSet.DyeColorRampId02; break;
+                    }
+                    DyeColorRampEntry entry = GameTableManager.Instance.DyeColorRamp.GetEntry(dye);
+
+                    VisibleDyeData |= (((int)entry.RampIndex) & 0x3FF) << (10 * i);
+                }
+            }
         }
 
         public CostumeItemSlot Slot { get; }
@@ -53,7 +94,7 @@ namespace NexusForever.WorldServer.Game.Entity
         public int DyeData
         {
             get => dyeData;
-            set
+            private set
             {
                 if (dyeData == value)
                     return;
@@ -62,6 +103,8 @@ namespace NexusForever.WorldServer.Game.Entity
                 saveMask |= CostumeItemSaveMask.DyeData;
             }
         }
+
+        public int VisibleDyeData { get; private set; }
 
         private int dyeData;
 
@@ -79,6 +122,7 @@ namespace NexusForever.WorldServer.Game.Entity
             Entry        = GameTableManager.Instance.Item.GetEntry(model.ItemId);
             itemId       = model.ItemId;
             dyeData      = model.DyeData;
+            UpdateVisibleDyeData();
         }
 
         /// <summary>
@@ -90,8 +134,8 @@ namespace NexusForever.WorldServer.Game.Entity
             Slot         = slot;
             Entry        = GameTableManager.Instance.Item.GetEntry(item.ItemId);
             itemId       = item.ItemId;
-            dyeData      = GenerateDyeMask(item.Dyes);
             saveMask     = CostumeItemSaveMask.Create;
+            SetDyes(item.Dyes);
         }
 
         public void Save(CharacterContext context)
@@ -135,6 +179,12 @@ namespace NexusForever.WorldServer.Game.Entity
             }
 
             saveMask = CostumeItemSaveMask.None;
+        }
+
+        public void SetDyes(uint[] dyes)
+        {
+            GenerateDyeMask(dyes);
+            UpdateVisibleDyeData();
         }
     }
 }

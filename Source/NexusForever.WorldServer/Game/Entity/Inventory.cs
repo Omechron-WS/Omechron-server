@@ -230,7 +230,7 @@ namespace NexusForever.WorldServer.Game.Entity
             {
                 Slot = itemSlot,
                 DisplayId = Item.GetDisplayId(costumeItem?.Entry ?? item?.Info.Entry),
-                DyeData = costumeItem?.DyeData ?? 0
+                DyeData = costumeItem?.VisibleDyeData ?? 0
             };
         }
 
