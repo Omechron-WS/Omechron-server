@@ -766,9 +766,6 @@ namespace NexusForever.WorldServer.Game.Entity
             if (bag == null)
                 throw new ArgumentException();
 
-            if (IsVisualItemSlot(item.Location, item.BagIndex) && player != null)
-                VisualUpdate(item);
-
             if (IsEquippableBagSlot(item.Location, item.BagIndex) && item.Info.IsEquippableBag())
                 InventoryResize(InventoryLocation.Inventory, (int)-item.Info.Entry.MaxStackCount);
             if (IsEquippableBankBagSlot(item.Location, item.BagIndex) && item.Info.IsEquippableBag())
@@ -777,7 +774,12 @@ namespace NexusForever.WorldServer.Game.Entity
             if (player != null && item.Location == InventoryLocation.Equipped)
                 RemoveProperties(item);
 
+            bool needVisualUpdate = (IsVisualItemSlot(item.Location, item.BagIndex) && player != null);
+
             bag.RemoveItem(item);
+
+            if (needVisualUpdate)
+                VisualUpdate(item);
         }
 
         /// <summary>
