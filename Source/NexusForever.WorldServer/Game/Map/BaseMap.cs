@@ -480,10 +480,16 @@ namespace NexusForever.WorldServer.Game.Map
             MapGrid grid = GetGrid(vector);
             grid.AddEntity(entity, vector);
 
-            uint guid = entityCounter.Dequeue();
-            entities.Add(guid, entity);
+            uint guid = entity.Guid;
 
-            entity.OnAddToMap(this, guid, vector);
+            if (guid == 0) // decor entities get a guid assigned earlier.
+                guid = entityCounter.Dequeue();
+
+            if (!entities.ContainsKey(guid))
+            {
+                entities.Add(guid, entity);
+                entity.OnAddToMap(this, guid, vector);
+            }
 
             log.Trace($"Added entity {entity.Guid} to map {Entry.Id}.");
         }

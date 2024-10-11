@@ -341,6 +341,7 @@ namespace NexusForever.WorldServer.Game.Map
                         catch (Exception e)
                         {
                             player.SendSystemMessage("Error creating decor! Try reloading your map with /c house teleport.");
+                            log.Error(e);
                         } // No fucks given, continue!
                         break;
                     case DecorUpdateOperation.Move:
@@ -351,6 +352,7 @@ namespace NexusForever.WorldServer.Game.Map
                                 catch (Exception e)
                         {
                             player.SendSystemMessage("Moved decor does not exist! Try reloading your map with /c house teleport.");
+                            log.Error(e);
                         } // No fucks given, continue!
                         break;
                     case DecorUpdateOperation.Delete:
@@ -361,6 +363,7 @@ namespace NexusForever.WorldServer.Game.Map
                                     catch (Exception e)
                         {
                             player.SendSystemMessage("Deleted decor does not exist! Try reloading your map with /c house teleport.");
+                            log.Error(e);
                         } // No fucks given, continue!
                         break;
                     default:
@@ -1024,6 +1027,9 @@ namespace NexusForever.WorldServer.Game.Map
 
             if (propRequest.PropId == (long)residence.Id || propRequest.PropId == (long.MinValue + (long)residence.Id))
                 return;
+
+            if (propRequest.PropId == 0)
+                return; // Happens when placing from vendor, or cancelling placement from vendor?
 
             Decor propRequestDecor = residence.GetDecor((ulong)propRequest.PropId);
             if (propRequestDecor == null)
