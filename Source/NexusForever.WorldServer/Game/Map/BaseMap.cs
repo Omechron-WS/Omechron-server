@@ -452,7 +452,7 @@ namespace NexusForever.WorldServer.Game.Map
                 EnqueueAdd(entity, position);
         }
 
-        private bool CanAddEntity(GridEntity entity, Vector3 vector)
+        public bool CanAddEntity(GridEntity entity, Vector3 vector)
         {
             ActivateGrid(entity, vector);
 

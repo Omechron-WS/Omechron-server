@@ -1057,7 +1057,7 @@ namespace NexusForever.WorldServer.Game.Map
             if (propRequestDecor.Entity == null)
                 return;
 
-            if(propRequestDecor.Entity.Map == null)
+            if(propRequestDecor.Entity.Map == null && CanAddEntity(propRequestDecor.Entity, propRequest.Position))
             {
                 AddEntity(propRequestDecor.Entity, propRequest.Position);
             }
