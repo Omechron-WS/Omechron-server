@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
@@ -63,9 +64,24 @@ namespace NexusForever.Shared.Game
 
         private void InitialiseServers()
         {
-            Servers = DatabaseManager.Instance.AuthDatabase.GetServers()
-                .Select(s => new ServerInfo(s))
-                .ToImmutableList();
+            var CurrentServers = DatabaseManager.Instance.AuthDatabase.GetServers();
+            List<ServerInfo> list = new();
+            foreach (var model in CurrentServers)
+            {
+                var existing = Servers.Where(s => s.Model.Equals(model)).FirstOrDefault();
+                if (existing != null)
+                {
+                    existing.Update();
+                    list.Add(existing);
+                }
+                else
+                {
+                    var newServer = new ServerInfo(model);
+                    list.Add(newServer);
+                }
+            }
+
+            Servers = list.ToImmutableList();
         }
 
         private void InitialiseServerMessages()

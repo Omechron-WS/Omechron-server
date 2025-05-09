@@ -12,48 +12,18 @@ namespace NexusForever.Shared.Game
     {
         private static readonly ILogger log = LogManager.GetCurrentClassLogger();
 
-        public ServerModel Model { get; }
-        public uint Address { get; }
-        public uint? InternalAddress { get; }
-        public bool AssumeOnline { get; }
+        public ServerModel Model { get; private set; }
+        public uint Address { get; private set; }
+        public uint? InternalAddress { get; private set; }
+        public bool AssumeOnline { get; private set; }
         public bool IsOnline { get; private set; }
 
         public ServerInfo(ServerModel model)
         {
-            try
-            {
-                if (!IPAddress.TryParse(model.Host, out IPAddress ipAddress))
-                {
-                    // find first IPv4 address, client doesn't support IPv6 as address is sent as 4 bytes
-                    ipAddress = Dns.GetHostEntry(model.Host)
-                        .AddressList
-                        .First(a => a.AddressFamily == AddressFamily.InterNetwork);
-                }
+            Model = model;
+            AssumeOnline = Model.AssumeOnline;
 
-                Address = (uint)IPAddress.HostToNetworkOrder(BitConverter.ToInt32(ipAddress.GetAddressBytes()));
-                Model   = model;
-
-                InternalAddress = null;
-                if (model.InternalIP != null)
-                {
-                    if (!IPAddress.TryParse(model.InternalIP, out IPAddress internalAddress))
-                    {
-                        // find first IPv4 address, client doesn't support IPv6 as address is sent as 4 bytes
-                        internalAddress = Dns.GetHostEntry(model.InternalIP)
-                            .AddressList
-                            .First(a => a.AddressFamily == AddressFamily.InterNetwork);
-
-                        InternalAddress = (uint)IPAddress.HostToNetworkOrder(BitConverter.ToInt32(internalAddress.GetAddressBytes()));
-                    }
-                }
-
-                AssumeOnline = model.AssumeOnline;
-            }
-            catch (Exception e)
-            {
-                log.Fatal(e, $"Failed to load server entry id: {model.Id}, host: {model.Host} from the database!");
-                throw;
-            }
+            Update();
         }
 
         /// <summary>
@@ -75,6 +45,57 @@ namespace NexusForever.Shared.Game
                 IsOnline = !task.IsFaulted;
                 return task;
             });
+        }
+
+        public void Update()
+        {
+            try
+            {
+                if (!IPAddress.TryParse(Model.Host, out IPAddress ipAddress))
+                {
+                    // find first IPv4 address, client doesn't support IPv6 as address is sent as 4 bytes
+                    ipAddress = Dns.GetHostEntry(Model.Host)
+                        .AddressList
+                        .First(a => a.AddressFamily == AddressFamily.InterNetwork);
+                }
+
+                Address = (uint)IPAddress.HostToNetworkOrder(BitConverter.ToInt32(ipAddress.GetAddressBytes()));
+            }
+            catch (Exception e)
+            {
+                if (Address == 0)
+                {
+                    log.Fatal(e, $"Failed to load server entry id: {Model.Id}, host: {Model.Host} from the database!");
+                    throw;
+                }
+                // If we have a valid address, we can ignore the error
+            }
+
+            try
+            {
+                InternalAddress = null;
+                if (Model.InternalIP != null)
+                {
+                    if (!IPAddress.TryParse(Model.InternalIP, out IPAddress internalAddress))
+                    {
+                        // find first IPv4 address, client doesn't support IPv6 as address is sent as 4 bytes
+                        internalAddress = Dns.GetHostEntry(Model.InternalIP)
+                            .AddressList
+                            .First(a => a.AddressFamily == AddressFamily.InterNetwork);
+
+                        InternalAddress = (uint)IPAddress.HostToNetworkOrder(BitConverter.ToInt32(internalAddress.GetAddressBytes()));
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                if (InternalAddress == 0)
+                {
+                    log.Fatal(e, $"Failed to load server entry id: {Model.Id}, host: {Model.Host} from the database!");
+                    throw;
+                }
+                // If we have a valid address, we can ignore the error
+            }
         }
     }
 }
