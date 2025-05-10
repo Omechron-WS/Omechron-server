@@ -20,7 +20,7 @@ namespace NexusForever.Shared.Game
 
         private ushort? serverRealmId;
 
-        private readonly UpdateTimer checkTimer = new(60d);
+        private readonly UpdateTimer checkTimer = new(6d);
         private readonly UpdateTimer pingCheckTimer = new(15d);
 
         private Thread serverPollThread;
@@ -68,7 +68,7 @@ namespace NexusForever.Shared.Game
             List<ServerInfo> list = new();
             foreach (var model in CurrentServers)
             {
-                var existing = Servers?.Where(s => object.Equals(s.Model, model)).FirstOrDefault() ?? null;
+                var existing = Servers?.Where(s => s.Model.Equals(model)).FirstOrDefault() ?? null;
                 if (existing != null)
                 {
                     existing.Update();
