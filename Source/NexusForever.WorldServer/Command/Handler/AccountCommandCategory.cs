@@ -87,7 +87,7 @@ namespace NexusForever.WorldServer.Command.Handler
 
         [Command(Permission.AccountAdminPassword, "Change a password for a given account.", "changepassword")]
         public void HandleAccountPassword(ICommandContext context,
-            [Parameter("Username of the account.")]
+            [Parameter("Username of the account.", converter: typeof(StringLowerParameterConverter))]
             string email,
             [Parameter("Password for the account.")]
             string password,
