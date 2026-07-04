@@ -37,7 +37,8 @@ namespace NexusForever.Shared.Cryptography
         public byte[] Decrypt(byte[] buffer, int length)
         {
             byte[] outputBytes = new byte[length];
-            byte[] state = BitConverter.GetBytes(keyValue).Reverse().ToArray();
+            byte[] state = BitConverter.GetBytes(keyValue);
+            state.Reverse();
 
             uint v4 = CryptMultiplier2 * (uint)length;
             uint v9 = 0;

@@ -145,9 +145,8 @@ namespace NexusForever.Shared.Cryptography
         private static BigInteger ShaInterleave(BigInteger key)
         {
             byte[] keyBytes = key.ToByteArray(true);
-            byte[] T = keyBytes
-                .Reverse()
-                .ToArray();
+            byte[] T = keyBytes;
+            keyBytes.Reverse();
 
             int first0 = Array.IndexOf<byte>(keyBytes, 0);
             int length = 4;
