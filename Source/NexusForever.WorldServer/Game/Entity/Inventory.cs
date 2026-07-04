@@ -50,7 +50,7 @@ namespace NexusForever.WorldServer.Game.Entity
                 .OrderBy(i => i.Location))
             {
                 var item = new Item(itemModel);
-                AddItem(item, (InventoryLocation)itemModel.Location, itemModel.BagIndex);
+                AddItem(item, (InventoryLocation)itemModel.Location, itemModel.BagIndex, true);
             }
         }
 
@@ -83,6 +83,9 @@ namespace NexusForever.WorldServer.Game.Entity
         {
             foreach (Item item in deletedItems)
                 item.Save(context);
+
+            if (deletedItems.Count > 0)
+                log.Info($"Deleting {deletedItems.Count} item(s) for character {characterId}: {string.Join(", ", deletedItems.Select(i => $"0x{i.Guid:X16}"))}");
 
             deletedItems.Clear();
 
@@ -727,7 +730,7 @@ namespace NexusForever.WorldServer.Game.Entity
         /// <summary>
         /// Add <see cref="Item"/> to the supplied <see cref="InventoryLocation"/> and bag index.
         /// </summary>
-        private void AddItem(Item item, InventoryLocation location, uint bagIndex)
+        private void AddItem(Item item, InventoryLocation location, uint bagIndex, bool relocateOnDuplicate = false)
         {
             if (item == null)
                 throw new ArgumentNullException();
@@ -737,6 +740,24 @@ namespace NexusForever.WorldServer.Game.Entity
             Bag bag = GetBag(location);
             if (bag == null)
                 throw new ArgumentException();
+
+            Item existing = bag.GetItem(bagIndex);
+            if (existing != null)
+            {
+                if (!relocateOnDuplicate)
+                    throw new ArgumentException();
+
+                log.Error($"Duplicate slot for character {characterId}: item {item.Guid} conflicts with {existing.Guid} at location={location}, bagIndex={bagIndex}. Relocating.");
+                uint? freeSlot = bag.GetFirstAvailableBagIndex();
+                if (!freeSlot.HasValue)
+                {
+                    log.Error($"No free slot in bag {location} for character {characterId}. Deleting extra item {item.Guid}.");
+                    item.EnqueueDelete();
+                    deletedItems.Add(item);
+                    return;
+                }
+                bagIndex = freeSlot.Value;
+            }
 
             bag.AddItem(item, bagIndex);
 
